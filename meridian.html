@@ -320,6 +320,16 @@ h2.section-title{
   60%{transform:rotate(280deg) scale(.94);}
   100%{transform:rotate(360deg) scale(1);}
 }
+
+.asset-icon{width:13px; height:13px; object-fit:contain; margin:1px auto 0; display:block; filter:drop-shadow(0 1px 1px rgba(0,0,0,.25));}
+.token-asset{position:absolute; inset:3px; width:calc(100% - 6px); height:calc(100% - 6px); object-fit:contain; pointer-events:none;}
+.token .token-asset,.mini-token .token-asset{border-radius:50%;}
+.token:has(.token-asset),.mini-token:has(.token-asset){position:relative;}
+.building-asset{width:100%; height:100%; object-fit:contain; display:block; filter:drop-shadow(1px 2px 1px rgba(0,0,0,.3));}
+.house-icon:has(.building-asset),.hotel-icon:has(.building-asset){background:transparent; border:0; box-shadow:none; transform:none;}
+.house-icon:has(.building-asset):before,.hotel-icon:has(.building-asset):before,.hotel-icon:has(.building-asset):after{content:none;}
+.die-asset{position:absolute; inset:0; width:100%; height:100%; object-fit:contain; border-radius:12px;}
+.die:has(.die-asset){color:transparent;}
 @media (prefers-reduced-motion: reduce){ .die.rolling{animation:none;} .cell{transition:none;} }
 @media(max-width:560px){
   #app{padding:8px;}
@@ -532,16 +542,71 @@ const DESIGNER_STYLES = [
   {id:'architect', label:'Architectural Depth'},
   {id:'cinematic', label:'Cinematic Glow'},
   {id:'minimal', label:'Gallery Minimal'}
-  {id:'felt', label:'Felt Green', swatches:['#1f4537','#cda349','#b2433c','#f4eedd'], direction:'Classic tabletop', boardMaterial:'brushed casino felt with warm wood rails', tokenStyle:'polished enamel pawns', diceStyle:'ivory engraved casino dice', propertyCardStyle:'cream title deeds with green felt accents', buildingStyle:'painted miniature houses and red hotels', groupNaming:'classic street color districts'},
-  {id:'midnight', label:'Midnight', swatches:['#161d36','#e8c14a','#d65d6b','#eef0fb'], direction:'Moonlit club', boardMaterial:'navy lacquer and brass trim', tokenStyle:'dark enamel medallions', diceStyle:'moonlit ivory cubes', propertyCardStyle:'high-contrast midnight deeds', buildingStyle:'sleek night-market miniatures', groupNaming:'after-dark city avenues'},
-  {id:'sunset', label:'Sunset', swatches:['#7a3b2e','#f3b54a','#3f7d6e','#fbf0e1'], direction:'Resort sunset', boardMaterial:'terracotta leather tabletop', tokenStyle:'sun-warmed ceramic tokens', diceStyle:'sandstone resort dice', propertyCardStyle:'vacation ledger cards', buildingStyle:'stucco villas and boutique hotels', groupNaming:'coastal resort districts'},
-  {id:'mint', label:'Mint Studio', swatches:['#1f3530','#7fd9b6','#e8866f','#f1f7ef'], direction:'Modern studio', boardMaterial:'matte graphite with mint inlay', tokenStyle:'soft-touch designer chips', diceStyle:'minimal mint studio cubes', propertyCardStyle:'clean editorial cards', buildingStyle:'minimal architectural blocks', groupNaming:'boutique studio neighborhoods'},
-  {id:'luxury', label:'Luxury Estate', swatches:['#090806','#d7b35a','#8f2532','#f8efd7'], direction:'Luxury Estate', boardMaterial:'walnut table, velvet board, gilded edge rails', tokenStyle:'heavy gold-and-enamel heirloom tokens', diceStyle:'champagne ivory dice with beveled pips', propertyCardStyle:'embossed estate deeds with gold rules', buildingStyle:'mini mansions, villas, and grand hotels', groupNaming:'prestige estates and private gardens'},
-  {id:'cyber', label:'Cyber Noir', swatches:['#050814','#19f7ff','#ff2fa7','#dff9ff'], direction:'Cyber Noir', boardMaterial:'black glass grid with neon underglow', tokenStyle:'glowing holo-core discs', diceStyle:'animated neon data cubes', propertyCardStyle:'transparent HUD property cards', buildingStyle:'stacked neon towers and arcology hotels', groupNaming:'night markets, sectors, and megablocks'},
-  {id:'enchanted', label:'Enchanted Atlas', swatches:['#17122a','#c9a7ff','#8ed6a4','#f5eedb'], direction:'Enchanted Atlas', boardMaterial:'enchanted map parchment over carved oak', tokenStyle:'gemstone compass tokens', diceStyle:'rune-carved story cubes', propertyCardStyle:'illuminated atlas cards', buildingStyle:'cottages, keeps, and crystal inns', groupNaming:'realms, groves, and mythic routes'},
-  {id:'deco', label:'Art Deco City', swatches:['#101012','#d9a441','#2f8f9d','#f2e5ca'], direction:'Art Deco City', boardMaterial:'black lacquer with brass sunburst inlays', tokenStyle:'chrome-and-gold skyscraper chips', diceStyle:'beveled deco dice', propertyCardStyle:'geometric title cards with foil bands', buildingStyle:'stepped towers and marquee hotels', groupNaming:'boroughs, boulevards, and landmark rows'},
-  {id:'space', label:'Space Colony', swatches:['#05070d','#8bd3ff','#ff8b6f','#e9eef8'], direction:'Space Colony', boardMaterial:'orbital composite panel with starfield table', tokenStyle:'domed rover tokens with metallic rims', diceStyle:'zero-g capsule cubes', propertyCardStyle:'mission manifest property cards', buildingStyle:'hab modules, domes, and orbital hotels', groupNaming:'colonies, craters, and orbital sectors'},
 ];
+
+const ASSETS = Object.freeze({
+  luxury: assetPack('luxury-estate', {token:['crown','key','car','yacht','horse','ring'], building:'villa', hotel:'manor'}),
+  cyber: assetPack('cyber-noir', {token:['holo-disc','drone','visor','bike','chip','neon-cat'], building:'tower', hotel:'arcology'}),
+  enchanted: assetPack('enchanted-atlas', {token:['compass','dragon','owl','crystal','ship','wand'], building:'cottage', hotel:'crystal-keep'}),
+  deco: assetPack('art-deco-city', {token:['skyscraper','roadster','spotlight','zeppelin','martini','eagle'], building:'setback-tower', hotel:'grand-landmark'}),
+  space: assetPack('space-colony', {token:['rover','rocket','satellite','helmet','lander','comet'], building:'hab-dome', hotel:'command-tower'})
+});
+
+function assetPack(folder, names){
+  const root = `assets/${folder}`;
+  const dice = {};
+  for(let i=1;i<=6;i++) dice[i] = `${root}/dice/dice-${i}.svg`;
+  const propertyGroupIcons = {};
+  Object.keys(GROUP_COLORS).forEach(group=>{ propertyGroupIcons[group] = `${root}/groups/${group}.svg`; });
+  return {
+    boardTexture:`${root}/textures/board.svg`,
+    tabletopTexture:`${root}/textures/tabletop.svg`,
+    deedFrame:`${root}/cards/deed-frame.svg`,
+    fortuneCardBack:`${root}/cards/fortune-back.svg`,
+    treasuryCardBack:`${root}/cards/treasury-back.svg`,
+    diceFaces:dice,
+    playerTokens:names.token.map(name=>`${root}/tokens/${name}.svg`),
+    houseImage:`${root}/buildings/${names.building}.svg`,
+    hotelImage:`${root}/buildings/${names.hotel}.svg`,
+    propertyGroupIcons
+  };
+}
+
+function currentAssetPack(){
+  const themeId = (app.room && app.room.settings && app.room.settings.theme) || 'luxury';
+  return ASSETS[themeId] || null;
+}
+
+function imgWithFallback(src, cls, alt){
+  return src ? `<img class="${cls}" src="${esc(src)}" alt="${esc(alt||'')}" loading="lazy" onerror="this.remove()">` : '';
+}
+
+function tokenAssetForPlayer(player){
+  const pack = currentAssetPack();
+  if(!pack || !pack.playerTokens || !pack.playerTokens.length) return '';
+  const room = app.room;
+  const idx = Math.max(0, room.players.findIndex(p=>p.id===player.id));
+  return pack.playerTokens[idx % pack.playerTokens.length];
+}
+
+function renderToken(player, cls='token'){
+  const asset = tokenAssetForPlayer(player);
+  return `<div class="${cls}" style="--token-color:${player.color}; background:${player.color}">${esc(initials(player.name))}${imgWithFallback(asset, 'token-asset', player.name+' token')}</div>`;
+}
+
+function renderBuilding(kind){
+  const pack = currentAssetPack();
+  const src = pack && (kind==='hotel' ? pack.hotelImage : pack.houseImage);
+  const cls = kind==='hotel' ? 'hotel-icon' : 'house-icon';
+  return `<div class="${cls}" title="${kind==='hotel'?'Hotel':'House'}">${imgWithFallback(src, 'building-asset', kind)}</div>`;
+}
+
+function renderDieFace(value, rolling){
+  const pack = currentAssetPack();
+  const src = pack && value ? pack.diceFaces[value] : '';
+  const text = value || (rolling?'?':'–');
+  return `${esc(String(text))}${(!rolling && src) ? imgWithFallback(src, 'die-asset', 'Die '+value) : ''}`;
+}
 
 const PLAYER_COLORS = ['#cda349','#b2433c','#5d8fc4','#6fae6e','#9b6fc4','#e08a4f'];
 
@@ -554,8 +619,6 @@ function defaultSettings(){
     auctionOnDecline:true,
     theme:'luxury',
     designer:'architect',
-    theme:'felt',
-    designerStyle:'felt',
   };
 }
 
@@ -718,7 +781,7 @@ function renderLobby(){
       <h2 class="section-title">Players (${players.length}/6)</h2>
       ${players.map(p=>`
         <div class="player-chip">
-          <div class="token" style="--token-color:${p.color}; background:${p.color}">${esc(initials(p.name))}</div>
+          ${renderToken(p)}
           <div class="pname">${esc(p.name)}</div>
           <div class="ptag">${p.id===room.hostId ? 'Host' : ''} ${p.id===app.me.id ? '· You' : ''}</div>
         </div>`).join('')}
@@ -751,7 +814,6 @@ function renderSetupPanel(){
     <button class="setup-tab ${tab==='designer'?'active':''}" data-act="setuptab" data-tab="designer">AI Designer</button>
   </div>
   ${tab==='rules' ? renderRulesTab() : tab==='board' ? renderBoardTab() : tab==='designer' ? renderAIDesignerTab() : renderThemeTab()}
-  ${tab==='rules' ? renderRulesTab() : tab==='board' ? renderBoardTab() : tab==='theme' ? renderThemeTab() : renderDesignerTab()}
   `;
 }
 
@@ -771,9 +833,7 @@ function renderSetupReadOnly(){
     <li>Auction unbought properties: <b>${s.auctionOnDecline?'On':'Off'}</b></li>
     <li>Theme: <b>${themeLabel}</b> <span class="muted">(${esc(theme.direction)})</span></li>
     <li>Board material: <b>${esc(theme.boardMaterial)}</b></li>
-    <li>AI Designer style: <b>${designerLabel}</b></li>
-    <li>Theme: <b>${themeLabel}</b></li>
-    <li>AI style direction: <b>${esc(((THEMES.find(t=>t.id===s.theme)||{}).direction)||themeLabel)}</b></li>
+    <li>Designer Style: <b>${designerLabel}</b></li>
   </ul>`;
 }
 
@@ -835,27 +895,16 @@ function renderBoardTab(){
 
 function renderThemeCard(t, active, act){
   return `
-      <div class="theme-opt ${active?'active':''}" data-act="${act}" data-id="${t.id}">
-function renderThemeTab(){
-  const cur = app.room.settings.theme;
-  const theme = THEMES.find(t=>t.id===cur) || THEMES[0];
-  return `
-  <p class="muted" style="font-size:12.5px; margin-top:0;">Pick a complete visual theme pack. Everyone sees the same board material, cards, tokens, buildings, and dice treatment.</p>
-  <div class="theme-grid">
-    ${THEMES.map(t=>`
-      <div class="theme-opt ${cur===t.id?'active':''}" data-act="theme" data-id="${t.id}" title="${esc(t.direction)}">
-        <div class="theme-swatches">${t.swatches.map(c=>`<span class="swatch" style="background:${c}"></span>`).join('')}</div>
-        <span class="theme-label">${esc(t.label)}</span>
-        <div class="theme-meta">
-          <div><b>Direction:</b> ${esc(t.direction)}</div>
-          <div><b>Board:</b> ${esc(t.boardMaterial)}</div>
-          <div><b>Tokens:</b> ${esc(t.tokenStyle)}</div>
-          <div><b>Dice:</b> ${esc(t.diceStyle)}</div>
-          <div><b>Cards:</b> ${esc(t.propertyCardStyle)}</div>
-          <div><b>Buildings:</b> ${esc(t.buildingStyle)}</div>
-          <div><b>Groups:</b> ${esc(t.groupNaming)}</div>
-        </div>
-      </div>`;
+    <div class="theme-opt ${active?'active':''}" data-act="${act}" data-id="${t.id}" title="${esc(t.direction)}">
+      <div class="theme-swatches">${t.swatches.map(c=>`<span class="swatch" style="background:${c}"></span>`).join('')}</div>
+      <span class="theme-label">${esc(t.label)}</span>
+      <div class="theme-meta">
+        <div><b>Direction:</b> ${esc(t.direction)}</div>
+        <div><b>Board:</b> ${esc(t.boardMaterial)}</div>
+        <div><b>Tokens:</b> ${esc(t.tokenStyle)}</div>
+        <div><b>Dice:</b> ${esc(t.diceStyle)}</div>
+      </div>
+    </div>`;
 }
 
 function renderDesignerStyleSelector(){
@@ -863,14 +912,13 @@ function renderDesignerStyleSelector(){
   return `
   <hr class="sep">
   <h2 class="section-title">Designer Style</h2>
-  <p class="muted" style="font-size:12.5px; margin-top:0;">Choose only the visual treatment. This does not change the theme world or game rules.</p>
+  <p class="muted" style="font-size:12.5px; margin-top:0;">Choose only the dimensional visual treatment. This does not change the selected world or game rules.</p>
   <div class="theme-grid">
     ${DESIGNER_STYLES.map(d=>`
-      <div class="theme-opt ${designer===d.id?'active':''}" data-act="designer" data-id="${d.id}">
+      <div class="theme-opt ${designer===d.id?'active':''}" data-act="designerStyle" data-id="${d.id}">
         ${esc(d.label)}
       </div>`).join('')}
-  </div>
-  ${renderThemeMetadata(theme)}`;
+  </div>`;
 }
 
 function renderThemeMetadata(theme){
@@ -882,28 +930,15 @@ function renderThemeMetadata(theme){
   return `<div class="theme-meta">${items.map(([k,v])=>`<div><b>${k}</b><br><span class="muted">${esc(v)}</span></div>`).join('')}</div>`;
 }
 
-function renderDesignerTab(){
-  const cur = app.room.settings.theme;
-  const designerThemes = THEMES.filter(t=>['luxury','cyber','enchanted','deco','space'].includes(t.id));
-  return `
-  <p class="muted" style="font-size:12.5px; margin-top:0;">AI Designer applies an opinionated visual direction without changing rules, rent, ownership, auctions, trades, jail, or cards.</p>
-  <div class="designer-grid">
-    ${designerThemes.map(t=>`<div class="designer-card ${cur===t.id?'active':''}" data-act="designer" data-id="${t.id}">
-      <div class="theme-swatches" style="justify-content:flex-start">${t.swatches.map(c=>`<span class="swatch" style="background:${c}"></span>`).join('')}</div>
-      <b>${t.label}</b>
-      <span class="muted">${esc(t.boardMaterial)} · ${esc(t.buildingStyle)}</span>
-    </div>`).join('')}
-  </div>
-  ${renderThemeMetadata(THEMES.find(t=>t.id===cur) || THEMES[0])}`;
-}
-
 function renderThemeTab(){
   const cur = app.room.settings.theme || 'luxury';
+  const theme = THEMES.find(t=>t.id===cur) || THEMES[0];
   return `
   <p class="muted" style="font-size:12.5px; margin-top:0;">Theme controls the complete world/style pack everyone sees. Metadata is shown so the selection is clear.</p>
   <div class="theme-grid">
     ${THEMES.map(t=>renderThemeCard(t, cur===t.id, 'theme')).join('')}
   </div>
+  ${renderThemeMetadata(theme)}
   ${renderDesignerStyleSelector()}`;
 }
 
@@ -911,10 +946,15 @@ function renderAIDesignerTab(){
   const cur = app.room.settings.theme || 'luxury';
   const directions = AI_DESIGNER_DIRECTIONS.map(id=>THEMES.find(t=>t.id===id)).filter(Boolean);
   return `
-  <p class="muted" style="font-size:12.5px; margin-top:0;">AI Designer directions are curated world presets. Picking one sets the theme; Designer Style below controls dimensional treatment.</p>
-  <div class="theme-grid">
-    ${directions.map(t=>renderThemeCard(t, cur===t.id, 'theme')).join('')}
+  <p class="muted" style="font-size:12.5px; margin-top:0;">AI Designer directions are curated world presets. Picking one sets the theme only; Designer Style below controls dimensional treatment.</p>
+  <div class="designer-grid">
+    ${directions.map(t=>`<div class="designer-card ${cur===t.id?'active':''}" data-act="theme" data-id="${t.id}">
+      <div class="theme-swatches" style="justify-content:flex-start">${t.swatches.map(c=>`<span class="swatch" style="background:${c}"></span>`).join('')}</div>
+      <b>${esc(t.label)}</b>
+      <span class="muted">${esc(t.boardMaterial)} · ${esc(t.buildingStyle)}</span>
+    </div>`).join('')}
   </div>
+  ${renderThemeMetadata(THEMES.find(t=>t.id===cur) || THEMES[0])}
   ${renderDesignerStyleSelector()}`;
 }
 /* ----------------------------------------------------------------------------
@@ -1180,19 +1220,11 @@ function handleAction(ds, el, e){
     }
     case 'theme': {
       app.room.settings.theme = ds.id;
-      app.room.settings.designerStyle = ds.id;
       document.body.dataset.theme = ds.id;
       commitRoom(); render();
       break;
     }
-    case 'designer': {
-      app.room.settings.theme = ds.id;
-      app.room.settings.designerStyle = ds.id;
-      document.body.dataset.theme = ds.id;
-      commitRoom(); render();
-      break;
-    }
-    case 'designer': {
+    case 'designerStyle': {
       app.room.settings.designer = ds.id;
       document.body.dataset.designer = ds.id;
       commitRoom(); render();
@@ -1310,10 +1342,12 @@ function renderGame(){
   const room = app.room;
   if(!room || !room.spaces) return renderLobby();
   const me = myPlayer();
+  const pack = currentAssetPack();
+  const tabletopStyle = pack ? ` style="background-image:url('${esc(pack.tabletopTexture)}'), var(--tabletop);"` : '';
   return `
   ${renderTopbar(me?`<span class="badge badge-muted mono">${fmtMoney(me.cash)}</span>`:'')}
   <div class="game-grid">
-    <div class="board-wrap">${renderBoard()}</div>
+    <div class="board-wrap"${tabletopStyle}>${renderBoard()}</div>
     <div class="sidebar">
       ${renderPlayersList()}
       ${renderActionPanel()}
@@ -1324,6 +1358,7 @@ function renderGame(){
 
 function renderBoard(){
   const room = app.room;
+  const pack = currentAssetPack();
   const cells = room.spaces.map(sp=>{
     const pos = getGridPos(sp.id);
     let sideClass = '';
@@ -1338,21 +1373,25 @@ function renderBoard(){
     else if(sp.type==='tax') priceLabel = '-'+fmtMoney(sp.amount);
     let houses = '';
     if(sp.type==='property' && sp.houses>0){
-      if(sp.houses===5) houses = '<div class="houses"><div class="hotel-icon" title="Hotel"></div></div>';
-      else houses = '<div class="houses">'+Array.from({length:sp.houses}).map(()=>'<div class="house-icon"></div>').join('')+'</div>';
+      if(sp.houses===5) houses = '<div class="houses">'+renderBuilding('hotel')+'</div>';
+      else houses = '<div class="houses">'+Array.from({length:sp.houses}).map(()=>renderBuilding('house')).join('')+'</div>';
     }
-    const tokens = playersHere.length ? `<div class="tokens">${playersHere.map(p=>`<div class="mini-token" style="--token-color:${p.color}; background:${p.color}">${esc(initials(p.name))}</div>`).join('')}</div>` : '';
+    const tokens = playersHere.length ? `<div class="tokens">${playersHere.map(p=>renderToken(p, 'mini-token')).join('')}</div>` : '';
     const classes = ['cell', isCorner?'corner':sideClass, owner?'owned':'', sp.mortgaged?'mortgaged':''].filter(Boolean).join(' ');
     const style = `grid-row:${pos.row}; grid-column:${pos.col};` + (owner?` --owner-color:${owner.color};`:'');
+    const groupIcon = pack && sp.group && pack.propertyGroupIcons ? pack.propertyGroupIcons[sp.group] : '';
+    const spaceIcon = groupIcon ? imgWithFallback(groupIcon, 'asset-icon', (GROUP_LABELS[sp.group]||sp.group)+' icon') : '';
     return `<div class="${classes}" style="${style}" data-act="cell" data-id="${sp.id}">
       ${groupColor?`<div class="band" style="background:${groupColor}"></div>`:''}
+      ${spaceIcon}
       <div class="label">${esc(sp.name)}</div>
       ${priceLabel?`<div class="price">${priceLabel}</div>`:''}
       ${houses}
       ${tokens}
     </div>`;
   }).join('');
-  return `<div class="board">${cells}${renderCenterArea()}</div>`;
+  const boardStyle = pack ? ` style="background-image:url('${esc(pack.boardTexture)}'), var(--board-sheen), var(--board);"` : '';
+  return `<div class="board"${boardStyle}>${cells}${renderCenterArea()}</div>`;
 }
 
 function renderCenterArea(){
@@ -1373,8 +1412,8 @@ function renderCenterArea(){
     <h2 class="display">Meridian</h2>
     <div class="turn-banner">${banner}</div>
     <div class="dice-row">
-      <div class="die ${rolling?'rolling':''}">${dice&&!rolling?dice[0]:(rolling?'?':'–')}</div>
-      <div class="die ${rolling?'rolling':''}">${dice&&!rolling?dice[1]:(rolling?'?':'–')}</div>
+      <div class="die ${rolling?'rolling':''}">${renderDieFace(dice&&!rolling?dice[0]:null, rolling)}</div>
+      <div class="die ${rolling?'rolling':''}">${renderDieFace(dice&&!rolling?dice[1]:null, rolling)}</div>
     </div>
     ${room.freeParkingPot>0 ? `<div class="badge badge-good">Free Parking pot: ${fmtMoney(room.freeParkingPot)}</div>` : ''}
   </div>`;
@@ -1391,7 +1430,7 @@ function renderPlayersList(){
       else if(p.inJail) meta = 'In jail · '+propCount+' properties';
       else meta = propCount+' properties';
       return `<div class="player-row ${i===room.currentPlayerIndex?'current':''} ${p.bankrupt?'bankrupt':''}">
-        <div class="token" style="--token-color:${p.color}; background:${p.color}">${esc(initials(p.name))}</div>
+        ${renderToken(p)}
         <div>
           <div class="pname">${esc(p.name)}${p.id===app.me.id?' (you)':''}</div>
           <div class="pmeta">${meta}</div>
