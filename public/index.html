@@ -657,6 +657,54 @@ function getGridPos(i){
 /* ----------------------------------------------------------------------------
    STORAGE
    ---------------------------------------------------------------------------- */
+const LOCAL_STORAGE_PREFIX = 'meridian:';
+
+function localStorageAdapter(){
+  return {
+    async get(key){
+      const value = window.localStorage.getItem(LOCAL_STORAGE_PREFIX + key);
+      return value === null ? null : {value};
+    },
+    async set(key, value){
+      window.localStorage.setItem(LOCAL_STORAGE_PREFIX + key, value);
+      return {ok:true, local:true};
+    }
+  };
+}
+
+function apiStorageAdapter(){
+  const fallback = localStorageAdapter();
+  async function request(path, options){
+    const response = await fetch(path, {
+      cache:'no-store',
+      headers:{'Content-Type':'application/json', ...(options && options.headers)},
+      ...options
+    });
+    if(!response.ok) throw new Error(`Storage API failed (${response.status})`);
+    return response.json();
+  }
+  return {
+    async get(key){
+      try{
+        return await request(`/api/room-get?key=${encodeURIComponent(key)}`, {method:'GET'});
+      }catch(e){
+        console.warn('Hosted room storage unavailable; reading from localStorage fallback.', e);
+        return fallback.get(key);
+      }
+    },
+    async set(key, value){
+      try{
+        return await request('/api/room-set', {method:'POST', body:JSON.stringify({key, value})});
+      }catch(e){
+        console.warn('Hosted room storage unavailable; writing to localStorage fallback.', e);
+        return fallback.set(key, value);
+      }
+    }
+  };
+}
+
+window.storage = window.storage || apiStorageAdapter();
+
 async function loadRoom(code){
   try{
     const res = await window.storage.get('room:'+code, true);
