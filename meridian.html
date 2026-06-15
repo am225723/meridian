@@ -8,14 +8,22 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
+/* ----------------------------------------------------------------------------
    THEME TOKENS
-   ============================================================ */
-:root, [data-theme="felt"]{
+   ---------------------------------------------------------------------------- */
+:root, [data-theme="luxury"]{
+  --bg:#120d09; --board:#3a2a18; --panel:#1d1510; --panel2:#2b2118;
+  --paper:#fff5df; --ink:#2a1b0f; --text:#fff4df; --muted:#d5b982;
+  --accent:#f2c15b; --accent-ink:#231608; --accent2:#9f2f2f;
+  --line:rgba(255,231,176,0.2); --good:#88c77b; --shadow:rgba(0,0,0,.62);
+  --v-glow:rgba(242,193,91,.34); --v-edge:#6b4a24; --v-board-hi:rgba(255,255,255,.13);
+}
+[data-theme="felt"]{
   --bg:#0d2419; --board:#1f4537; --panel:#16331f; --panel2:#1c3d29;
   --paper:#f4eedd; --ink:#2b2420; --text:#eef3ea; --muted:#a9bfb0;
   --accent:#cda349; --accent-ink:#2b2018; --accent2:#b2433c;
   --line:rgba(244,238,221,0.16); --good:#6fae6e; --shadow:rgba(0,0,0,.45);
+  --v-glow:rgba(205,163,73,.22); --v-edge:#0b1d15; --v-board-hi:rgba(255,255,255,.08);
   --tabletop:radial-gradient(circle at 50% 35%, rgba(255,255,255,.08), transparent 42%), linear-gradient(135deg,#14291f,#07130e 72%);
   --board-sheen:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,0) 38%,rgba(0,0,0,.18));
   --cell-edge:#cbbf9f; --cell-top:#fff8e6; --building-roof:#d8b756; --token-metal:#fff4c5; --dice-face:#fff7df;
@@ -55,28 +63,68 @@
   --paper:#eef0fb; --ink:#1c2240; --text:#eef0fb; --muted:#9aa3c7;
   --accent:#e8c14a; --accent-ink:#241c08; --accent2:#d65d6b;
   --line:rgba(232,225,255,0.14); --good:#7fd1a0; --shadow:rgba(0,0,0,.55);
+  --v-glow:rgba(232,193,74,.2); --v-edge:#070a16; --v-board-hi:rgba(255,255,255,.09);
 }
 [data-theme="sunset"]{
   --bg:#2c1812; --board:#7a3b2e; --panel:#3a1f17; --panel2:#48261b;
   --paper:#fbf0e1; --ink:#3a261c; --text:#fdece0; --muted:#e0b9a8;
   --accent:#f3b54a; --accent-ink:#2c1808; --accent2:#3f7d6e;
   --line:rgba(253,236,224,0.18); --good:#8fd0b0; --shadow:rgba(0,0,0,.45);
+  --v-glow:rgba(243,181,74,.22); --v-edge:#1a0e0a; --v-board-hi:rgba(255,255,255,.1);
 }
 [data-theme="mint"]{
   --bg:#13201d; --board:#1f3530; --panel:#0f1a18; --panel2:#16241f;
   --paper:#f1f7ef; --ink:#1f2e29; --text:#eaf4ee; --muted:#9fc2b4;
   --accent:#7fd9b6; --accent-ink:#0c2620; --accent2:#e8866f;
   --line:rgba(234,244,238,0.14); --good:#7fd9b6; --shadow:rgba(0,0,0,.5);
+  --v-glow:rgba(127,217,182,.18); --v-edge:#07110f; --v-board-hi:rgba(255,255,255,.08);
+}
+[data-theme="cyber"]{
+  --bg:#070914; --board:#101832; --panel:#0b1024; --panel2:#121a34;
+  --paper:#eef7ff; --ink:#10172f; --text:#eaf6ff; --muted:#95b9d7;
+  --accent:#35f0ff; --accent-ink:#051015; --accent2:#ff4fd8;
+  --line:rgba(91,232,255,.2); --good:#70ffad; --shadow:rgba(0,0,0,.62);
+  --v-glow:rgba(53,240,255,.28); --v-edge:#030714; --v-board-hi:rgba(255,79,216,.12);
+}
+[data-theme="enchanted"]{
+  --bg:#111025; --board:#26345f; --panel:#17152e; --panel2:#211d3d;
+  --paper:#fff7e7; --ink:#291d34; --text:#f8efff; --muted:#c7b4ef;
+  --accent:#d8b5ff; --accent-ink:#211530; --accent2:#6fd39a;
+  --line:rgba(216,181,255,.2); --good:#8fe8a8; --shadow:rgba(0,0,0,.56);
+  --v-glow:rgba(216,181,255,.28); --v-edge:#0b0c22; --v-board-hi:rgba(111,211,154,.13);
+}
+[data-theme="deco"]{
+  --bg:#0d1418; --board:#1c3135; --panel:#111b20; --panel2:#18262b;
+  --paper:#fbefd6; --ink:#24201a; --text:#f8ead0; --muted:#ccb58a;
+  --accent:#e5b85b; --accent-ink:#211608; --accent2:#1c8c8f;
+  --line:rgba(229,184,91,.2); --good:#83c987; --shadow:rgba(0,0,0,.58);
+  --v-glow:rgba(229,184,91,.24); --v-edge:#070d10; --v-board-hi:rgba(28,140,143,.12);
+}
+[data-theme="space"]{
+  --bg:#050713; --board:#131a31; --panel:#0b0f20; --panel2:#11172b;
+  --paper:#edf2ff; --ink:#141b2d; --text:#eff4ff; --muted:#aab6d8;
+  --accent:#9cc7ff; --accent-ink:#07101f; --accent2:#ff8f6b;
+  --line:rgba(156,199,255,.18); --good:#8de0c2; --shadow:rgba(0,0,0,.66);
+  --v-glow:rgba(156,199,255,.24); --v-edge:#02040d; --v-board-hi:rgba(255,255,255,.1);
 }
 
-/* ============================================================
+
+[data-designer="architect"] .board{--v-designer-sheen:linear-gradient(135deg, rgba(255,255,255,.18), transparent 26%, rgba(255,255,255,.06) 52%, transparent 78%);}
+[data-designer="cinematic"] .board{--v-designer-sheen:radial-gradient(circle at 50% 50%, rgba(255,255,255,.1), transparent 48%);}
+[data-designer="minimal"] .board{--v-designer-sheen:none;}
+[data-designer="minimal"] .cell, [data-designer="minimal"] .die{box-shadow:none;}
+
+/* ----------------------------------------------------------------------------
    RESET & BASE
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
   font-family:'Inter',system-ui,sans-serif;
-  background:var(--bg); color:var(--text);
+  background:
+    radial-gradient(circle at 50% -10%, var(--v-glow, rgba(205,163,73,.2)), transparent 34%),
+    linear-gradient(135deg, rgba(255,255,255,.04), transparent 28%),
+    var(--bg); color:var(--text);
   min-height:100vh; line-height:1.45;
   -webkit-font-smoothing:antialiased;
 }
@@ -87,9 +135,9 @@ input,select{font-family:inherit;}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
 a{color:var(--accent);}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    LAYOUT SHELL
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 #app{max-width:1280px; margin:0 auto; padding:14px; min-height:100vh; display:flex; flex-direction:column; gap:12px;}
 
 .topbar{
@@ -109,12 +157,12 @@ a{color:var(--accent);}
 }
 .topbar-right{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    GENERIC UI ELEMENTS
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .card{
-  background:var(--panel); border:1px solid var(--line); border-radius:14px;
-  padding:18px; box-shadow:0 6px 24px var(--shadow);
+  background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 42%), var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:18px; box-shadow:0 12px 34px var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
 }
 .btn{
   border-radius:10px; border:1px solid var(--line); background:var(--panel2);
@@ -145,9 +193,9 @@ h2.section-title{
   margin:0 0 12px 0; font-weight:700; font-family:'Inter',sans-serif;
 }
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    HOME SCREEN
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .home-wrap{display:flex; flex-direction:column; align-items:center; padding:40px 12px;}
 .home-card{max-width:460px; width:100%;}
 .home-hero{text-align:center; margin-bottom:26px;}
@@ -158,9 +206,9 @@ h2.section-title{
 .tab.active{background:var(--accent); color:var(--accent-ink);}
 .error-text{color:var(--accent2); font-size:13px; font-weight:600; min-height:18px;}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    LOBBY
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .lobby-grid{display:grid; grid-template-columns:1fr; gap:14px;}
 @media(min-width:860px){.lobby-grid{grid-template-columns: 320px 1fr;}}
 .player-chip{
@@ -170,8 +218,9 @@ h2.section-title{
 .token{
   width:30px; height:30px; border-radius:50%; flex-shrink:0;
   display:flex; align-items:center; justify-content:center;
-  font-weight:800; font-size:12px; color:#fff; border:2px solid rgba(255,255,255,.35);
+  font-weight:800; font-size:12px; color:#fff; border:2px solid rgba(255,255,255,.42);
   font-family:'JetBrains Mono',monospace;
+  box-shadow:0 6px 12px rgba(0,0,0,.34), inset -4px -5px 8px rgba(0,0,0,.18), inset 2px 2px 4px rgba(255,255,255,.35);
 }
 .player-chip .pname{font-weight:700; font-size:14px;}
 .player-chip .ptag{font-size:11px; color:var(--muted); margin-left:auto; text-transform:uppercase; letter-spacing:.08em;}
@@ -188,12 +237,15 @@ h2.section-title{
 .theme-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px;}
 .theme-opt{border:2px solid var(--line); border-radius:10px; padding:10px; text-align:center; cursor:pointer; font-weight:700; font-size:12.5px;}
 .theme-opt.active{border-color:var(--accent);}
+.theme-opt .theme-label{display:block; margin-bottom:4px;}
+.theme-meta{font-size:10.5px; line-height:1.45; color:var(--muted); font-weight:600; text-align:left; margin-top:8px;}
+.theme-meta b{color:var(--text);}
 .theme-swatches{display:flex; justify-content:center; gap:4px; margin-bottom:6px;}
 .swatch{width:14px; height:14px; border-radius:50%;}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    GAME LAYOUT
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .game-grid{display:grid; grid-template-columns:1fr; gap:14px;}
 @media(min-width:980px){.game-grid{grid-template-columns: minmax(0,1fr) 320px;}}
 
@@ -204,13 +256,22 @@ h2.section-title{
   display:grid;
   grid-template-columns: 1.35fr repeat(9,1fr) 1.35fr;
   grid-template-rows: 1.35fr repeat(9,1fr) 1.35fr;
-  background:var(--board); border-radius:10px; border:6px solid var(--panel2);
-  box-shadow:0 10px 36px var(--shadow); position:relative; padding:3px; gap:2px;
+  background:
+    var(--v-designer-sheen, linear-gradient(135deg, rgba(255,255,255,.12), transparent 32%, rgba(0,0,0,.08) 68%)),
+    radial-gradient(circle at 50% 42%, var(--v-board-hi), transparent 38%),
+    var(--board);
+  border-radius:18px; border:8px solid var(--panel2);
+  box-shadow:0 28px 70px var(--shadow), 0 10px 0 var(--v-edge), inset 0 0 0 1px rgba(255,255,255,.12), inset 0 0 36px rgba(0,0,0,.18);
+  position:relative; padding:7px; gap:3px;
+  transform:perspective(1300px) rotateX(1.3deg); transform-origin:center bottom;
 }
 .cell{
-  position:relative; background:var(--paper); color:var(--ink); border-radius:3px;
+  position:relative; background:linear-gradient(145deg, rgba(255,255,255,.55), transparent 30%), var(--paper); color:var(--ink); border-radius:5px;
   display:flex; flex-direction:column; overflow:hidden; min-width:0; min-height:0;
+  box-shadow:inset 0 0 0 1px rgba(42,27,15,.12), 0 1px 0 rgba(255,255,255,.18);
+  transition:transform .16s ease, filter .16s ease;
 }
+.cell:hover{transform:translateY(-1px); filter:saturate(1.04);}
 .cell .band{height:14%; min-height:6px; width:100%;}
 .cell .label{
   flex:1; display:flex; align-items:center; justify-content:center; text-align:center;
@@ -228,15 +289,16 @@ h2.section-title{
 .cell.corner .label{font-size:clamp(7px,1.4vw,13px);}
 .cell.owned{box-shadow:inset 0 0 0 3px var(--owner-color, transparent);}
 .cell.mortgaged{filter:grayscale(.6) brightness(.85);}
-.cell .houses{position:absolute; top:2px; left:2px; right:2px; display:flex; gap:1px; justify-content:center; z-index:2;}
-.cell.side-left .houses, .cell.side-right .houses{top:auto; left:2px; right:2px; bottom:2px; flex-direction:row;}
-.house-icon{width:7px; height:7px; background:#3aa563; border:1px solid #1f5c33; border-radius:1px;}
-.hotel-icon{width:11px; height:9px; background:#c0392b; border:1px solid #6e1c12; border-radius:1px;}
-.cell .tokens{position:absolute; bottom:2px; left:2px; right:2px; display:flex; flex-wrap:wrap; gap:1px; justify-content:center; z-index:3;}
-.cell.side-left .tokens, .cell.side-right .tokens{bottom:auto; top:50%; left:2px; right:2px;}
+.cell .houses{position:absolute; top:3px; left:3px; right:3px; display:flex; gap:2px; justify-content:center; align-items:flex-end; z-index:2; pointer-events:none;}
+.cell.side-left .houses, .cell.side-right .houses{top:auto; left:3px; right:3px; bottom:3px; flex-direction:row;}
+.house-icon{width:8px; height:8px; background:linear-gradient(145deg,#7be28f,#23834b); border:1px solid #176035; border-radius:2px 2px 1px 1px; box-shadow:0 2px 3px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.45);}
+.hotel-icon{width:15px; height:11px; background:linear-gradient(145deg,#f06b5d,#9e251f); border:1px solid #68170f; border-radius:2px; box-shadow:0 2px 4px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.38);}
+.cell .tokens{position:absolute; bottom:3px; left:3px; right:3px; display:flex; flex-wrap:wrap; gap:2px; justify-content:center; z-index:3; pointer-events:none;}
+.cell.side-left .tokens, .cell.side-right .tokens{bottom:auto; top:50%; left:3px; right:3px;}
 .mini-token{
-  width:11px; height:11px; border-radius:50%; border:1px solid rgba(255,255,255,.6);
+  width:14px; height:14px; border-radius:50%; border:1px solid rgba(255,255,255,.72);
   font-size:6px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800;
+  box-shadow:0 4px 7px rgba(0,0,0,.38), inset -2px -3px 5px rgba(0,0,0,.22), inset 1px 1px 3px rgba(255,255,255,.45);
 }
 .center-area{
   grid-row:2/11; grid-column:2/11; display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -245,10 +307,11 @@ h2.section-title{
 .center-area .display{font-size:clamp(20px,4vw,40px); color:var(--accent); margin:0; letter-spacing:.08em;}
 .dice-row{display:flex; gap:10px;}
 .die{
-  width:clamp(34px,7vw,52px); height:clamp(34px,7vw,52px); background:var(--paper); color:var(--ink);
-  border-radius:8px; display:flex; align-items:center; justify-content:center;
-  font-size:clamp(16px,3.4vw,26px); font-weight:800; font-family:'JetBrains Mono',monospace;
-  box-shadow:0 4px 10px var(--shadow);
+  width:clamp(38px,7vw,58px); height:clamp(38px,7vw,58px); background:radial-gradient(circle at 32% 26%, #fff, var(--paper) 58%, #d8c5a2); color:var(--ink);
+  border-radius:12px; display:flex; align-items:center; justify-content:center;
+  font-size:clamp(17px,3.4vw,27px); font-weight:800; font-family:'JetBrains Mono',monospace;
+  border:1px solid rgba(42,27,15,.18);
+  box-shadow:0 10px 18px rgba(0,0,0,.34), inset -5px -7px 12px rgba(0,0,0,.11), inset 2px 2px 4px rgba(255,255,255,.78);
 }
 .die.rolling{animation:roll .5s ease;}
 @keyframes roll{
@@ -257,7 +320,14 @@ h2.section-title{
   60%{transform:rotate(280deg) scale(.94);}
   100%{transform:rotate(360deg) scale(1);}
 }
-@media (prefers-reduced-motion: reduce){ .die.rolling{animation:none;} }
+@media (prefers-reduced-motion: reduce){ .die.rolling{animation:none;} .cell{transition:none;} }
+@media(max-width:560px){
+  #app{padding:8px;}
+  .board{border-width:5px; padding:4px; gap:2px; border-radius:12px; transform:none; box-shadow:0 14px 36px var(--shadow), 0 5px 0 var(--v-edge);}
+  .mini-token{width:11px; height:11px; font-size:5.5px;}
+  .house-icon{width:6px; height:6px;} .hotel-icon{width:11px; height:8px;}
+  .center-area{gap:6px; padding:6px;}
+}
 .turn-banner{font-size:14px; font-weight:700;}
 .turn-banner .pname-inline{color:var(--accent);}
 
@@ -306,9 +376,9 @@ h2.section-title{
 .log-panel .log-entry{padding:4px 0; border-bottom:1px solid var(--line);}
 .log-panel .log-entry b{color:var(--text);}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    MODALS
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .modal-overlay{
   position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center;
   z-index:50; padding:14px;
@@ -329,9 +399,9 @@ h2.section-title{
 .title-deed td.r{text-align:right; font-weight:700;}
 .modal-close{position:sticky; top:0;}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    MISC
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .muted{color:var(--muted);}
 .center{text-align:center;}
 .hidden{display:none !important;}
@@ -344,13 +414,13 @@ h2.section-title{
 hr.sep{border:none; border-top:1px solid var(--line); margin:14px 0;}
 </style>
 </head>
-<body data-theme="felt">
+<body data-theme="luxury" data-designer="architect">
 <div id="app"></div>
 
 <script>
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    DATA: BOARD, CARDS, THEMES, SETTINGS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 const GROUP_COLORS = {
   brown:'#8b5a2b', lightblue:'#9fd8f0', pink:'#e0529c', orange:'#f0a13a',
   red:'#e0453a', yellow:'#f5d23a', green:'#3aa563', darkblue:'#2f6fb0',
@@ -445,6 +515,23 @@ const TREASURY_CARDS = [
 ];
 
 const THEMES = [
+  {id:'luxury', label:'Luxury Estate', swatches:['#120d09','#f2c15b','#9f2f2f','#fff5df'], direction:'Luxury Estate', boardMaterial:'lacquered walnut with brass inlay', tokenStyle:'polished enamel pawns', diceStyle:'ivory casino dice', propertyCardStyle:'embossed cream deeds', buildingStyle:'green glass houses and ruby hotels', groupNaming:'estate districts'},
+  {id:'felt', label:'Felt Green', swatches:['#1f4537','#cda349','#b2433c','#f4eedd'], direction:'Classic Felt Table', boardMaterial:'casino felt with stitched rails', tokenStyle:'painted metal pawns', diceStyle:'classic bone dice', propertyCardStyle:'traditional paper deeds', buildingStyle:'classic houses and hotels', groupNaming:'street color sets'},
+  {id:'midnight', label:'Midnight', swatches:['#161d36','#e8c14a','#d65d6b','#eef0fb'], direction:'Midnight Gala', boardMaterial:'dark velvet and gilt trim', tokenStyle:'jewel-toned glass tokens', diceStyle:'moonlit pearl dice', propertyCardStyle:'formal navy title cards', buildingStyle:'lit townhouse miniatures', groupNaming:'avenue collections'},
+  {id:'sunset', label:'Sunset', swatches:['#7a3b2e','#f3b54a','#3f7d6e','#fbf0e1'], direction:'Sunset Resort', boardMaterial:'warm terracotta tile', tokenStyle:'ceramic resort markers', diceStyle:'sun-washed dice', propertyCardStyle:'boutique travel deeds', buildingStyle:'stucco villas and resorts', groupNaming:'coastal neighborhoods'},
+  {id:'mint', label:'Mint Studio', swatches:['#1f3530','#7fd9b6','#e8866f','#f1f7ef'], direction:'Mint Studio', boardMaterial:'matte studio composite', tokenStyle:'soft-touch design tokens', diceStyle:'minimal mint dice', propertyCardStyle:'clean studio cards', buildingStyle:'modern modular buildings', groupNaming:'design zones'},
+  {id:'cyber', label:'Cyber Noir', swatches:['#070914','#35f0ff','#ff4fd8','#eef7ff'], direction:'Cyber Noir', boardMaterial:'smoked glass with neon circuitry', tokenStyle:'holographic chrome avatars', diceStyle:'glowing edge-lit dice', propertyCardStyle:'augmented neon deeds', buildingStyle:'micro tower blocks and data spires', groupNaming:'neon sectors'},
+  {id:'enchanted', label:'Enchanted Atlas', swatches:['#111025','#d8b5ff','#6fd39a','#fff7e7'], direction:'Enchanted Atlas', boardMaterial:'star-map parchment over carved oak', tokenStyle:'enchanted gemstone familiars', diceStyle:'rune-etched dice', propertyCardStyle:'illuminated atlas cards', buildingStyle:'cottages and crystal keeps', groupNaming:'mythic realms'},
+  {id:'deco', label:'Art Deco City', swatches:['#0d1418','#e5b85b','#1c8c8f','#fbefd6'], direction:'Art Deco City', boardMaterial:'black marble with brass sunbursts', tokenStyle:'streamlined chrome pieces', diceStyle:'black-and-gold dice', propertyCardStyle:'deco ledger deeds', buildingStyle:'setback skyscrapers and grand hotels', groupNaming:'city districts'},
+  {id:'space', label:'Space Colony', swatches:['#050713','#9cc7ff','#ff8f6b','#edf2ff'], direction:'Space Colony', boardMaterial:'orbital alloy deck plating', tokenStyle:'mini rover tokens', diceStyle:'translucent starlight dice', propertyCardStyle:'mission manifest deeds', buildingStyle:'hab domes and command towers', groupNaming:'colony sectors'}
+];
+
+const AI_DESIGNER_DIRECTIONS = ['luxury','cyber','enchanted','deco','space'];
+
+const DESIGNER_STYLES = [
+  {id:'architect', label:'Architectural Depth'},
+  {id:'cinematic', label:'Cinematic Glow'},
+  {id:'minimal', label:'Gallery Minimal'}
   {id:'felt', label:'Felt Green', swatches:['#1f4537','#cda349','#b2433c','#f4eedd'], direction:'Classic tabletop', boardMaterial:'brushed casino felt with warm wood rails', tokenStyle:'polished enamel pawns', diceStyle:'ivory engraved casino dice', propertyCardStyle:'cream title deeds with green felt accents', buildingStyle:'painted miniature houses and red hotels', groupNaming:'classic street color districts'},
   {id:'midnight', label:'Midnight', swatches:['#161d36','#e8c14a','#d65d6b','#eef0fb'], direction:'Moonlit club', boardMaterial:'navy lacquer and brass trim', tokenStyle:'dark enamel medallions', diceStyle:'moonlit ivory cubes', propertyCardStyle:'high-contrast midnight deeds', buildingStyle:'sleek night-market miniatures', groupNaming:'after-dark city avenues'},
   {id:'sunset', label:'Sunset', swatches:['#7a3b2e','#f3b54a','#3f7d6e','#fbf0e1'], direction:'Resort sunset', boardMaterial:'terracotta leather tabletop', tokenStyle:'sun-warmed ceramic tokens', diceStyle:'sandstone resort dice', propertyCardStyle:'vacation ledger cards', buildingStyle:'stucco villas and boutique hotels', groupNaming:'coastal resort districts'},
@@ -465,14 +552,16 @@ function defaultSettings(){
     doubleRentFullSet:true,
     evenBuild:true,
     auctionOnDecline:true,
+    theme:'luxury',
+    designer:'architect',
     theme:'felt',
     designerStyle:'felt',
   };
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    UTILITIES
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function fmtMoney(n){
   const neg = n<0; n = Math.abs(Math.round(n));
   return (neg?'-':'') + '$' + n.toLocaleString('en-US');
@@ -502,9 +591,9 @@ function getGridPos(i){
   if(i>=31 && i<=39) return {row:i-29, col:11};
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    STORAGE
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 async function loadRoom(code){
   try{
     const res = await window.storage.get('room:'+code, true);
@@ -518,9 +607,9 @@ async function saveRoom(code, state){
   }catch(e){ return false; }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    APP STATE
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 const app = {
   screen:'home',          // home | lobby | game
   roomCode:null,
@@ -550,16 +639,17 @@ function render(){
   if(app.screen==='home') el.innerHTML = renderHome();
   else if(app.screen==='lobby') el.innerHTML = renderLobby();
   else if(app.screen==='game') el.innerHTML = renderGame();
-  document.body.dataset.theme = (app.room && app.room.settings) ? app.room.settings.theme : 'felt';
+  document.body.dataset.theme = (app.room && app.room.settings) ? (app.room.settings.theme || 'luxury') : 'luxury';
+  document.body.dataset.designer = (app.room && app.room.settings) ? (app.room.settings.designer || 'architect') : 'architect';
   renderModal();
   wireEvents();
 }
 
 function setError(msg){ app.ui.errorMsg = msg; render(); }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    HOME SCREEN
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderHome(){
   const ui = app.ui;
   return `
@@ -592,9 +682,9 @@ function renderHome(){
   </div>`;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    SHARED TOPBAR
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderTopbar(rightExtra){
   return `
   <div class="topbar">
@@ -610,9 +700,9 @@ function renderTopbar(rightExtra){
   </div>`;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    LOBBY SCREEN
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function isHost(){
   return app.room && app.room.hostId === app.me.id;
 }
@@ -660,13 +750,16 @@ function renderSetupPanel(){
     <button class="setup-tab ${tab==='theme'?'active':''}" data-act="setuptab" data-tab="theme">Theme</button>
     <button class="setup-tab ${tab==='designer'?'active':''}" data-act="setuptab" data-tab="designer">AI Designer</button>
   </div>
+  ${tab==='rules' ? renderRulesTab() : tab==='board' ? renderBoardTab() : tab==='designer' ? renderAIDesignerTab() : renderThemeTab()}
   ${tab==='rules' ? renderRulesTab() : tab==='board' ? renderBoardTab() : tab==='theme' ? renderThemeTab() : renderDesignerTab()}
   `;
 }
 
 function renderSetupReadOnly(){
   const s = app.room.settings;
-  const themeLabel = (THEMES.find(t=>t.id===s.theme)||{}).label || s.theme;
+  const theme = THEMES.find(t=>t.id===(s.theme||'luxury')) || THEMES[0];
+  const themeLabel = theme.label || s.theme;
+  const designerLabel = (DESIGNER_STYLES.find(d=>d.id===(s.designer||'architect'))||{}).label || (s.designer||'architect');
   return `
   <h2 class="section-title">Game setup</h2>
   <p class="muted" style="font-size:13px;">The host is configuring the board, house rules, and theme. Here's the current setup:</p>
@@ -676,6 +769,9 @@ function renderSetupReadOnly(){
     <li>Double rent on full color sets: <b>${s.doubleRentFullSet?'On':'Off'}</b></li>
     <li>Even house-building rule: <b>${s.evenBuild?'On':'Off'}</b></li>
     <li>Auction unbought properties: <b>${s.auctionOnDecline?'On':'Off'}</b></li>
+    <li>Theme: <b>${themeLabel}</b> <span class="muted">(${esc(theme.direction)})</span></li>
+    <li>Board material: <b>${esc(theme.boardMaterial)}</b></li>
+    <li>AI Designer style: <b>${designerLabel}</b></li>
     <li>Theme: <b>${themeLabel}</b></li>
     <li>AI style direction: <b>${esc(((THEMES.find(t=>t.id===s.theme)||{}).direction)||themeLabel)}</b></li>
   </ul>`;
@@ -737,6 +833,9 @@ function renderBoardTab(){
   </div>`;
 }
 
+function renderThemeCard(t, active, act){
+  return `
+      <div class="theme-opt ${active?'active':''}" data-act="${act}" data-id="${t.id}">
 function renderThemeTab(){
   const cur = app.room.settings.theme;
   const theme = THEMES.find(t=>t.id===cur) || THEMES[0];
@@ -746,7 +845,29 @@ function renderThemeTab(){
     ${THEMES.map(t=>`
       <div class="theme-opt ${cur===t.id?'active':''}" data-act="theme" data-id="${t.id}" title="${esc(t.direction)}">
         <div class="theme-swatches">${t.swatches.map(c=>`<span class="swatch" style="background:${c}"></span>`).join('')}</div>
-        ${t.label}
+        <span class="theme-label">${esc(t.label)}</span>
+        <div class="theme-meta">
+          <div><b>Direction:</b> ${esc(t.direction)}</div>
+          <div><b>Board:</b> ${esc(t.boardMaterial)}</div>
+          <div><b>Tokens:</b> ${esc(t.tokenStyle)}</div>
+          <div><b>Dice:</b> ${esc(t.diceStyle)}</div>
+          <div><b>Cards:</b> ${esc(t.propertyCardStyle)}</div>
+          <div><b>Buildings:</b> ${esc(t.buildingStyle)}</div>
+          <div><b>Groups:</b> ${esc(t.groupNaming)}</div>
+        </div>
+      </div>`;
+}
+
+function renderDesignerStyleSelector(){
+  const designer = app.room.settings.designer || 'architect';
+  return `
+  <hr class="sep">
+  <h2 class="section-title">Designer Style</h2>
+  <p class="muted" style="font-size:12.5px; margin-top:0;">Choose only the visual treatment. This does not change the theme world or game rules.</p>
+  <div class="theme-grid">
+    ${DESIGNER_STYLES.map(d=>`
+      <div class="theme-opt ${designer===d.id?'active':''}" data-act="designer" data-id="${d.id}">
+        ${esc(d.label)}
       </div>`).join('')}
   </div>
   ${renderThemeMetadata(theme)}`;
@@ -776,9 +897,29 @@ function renderDesignerTab(){
   ${renderThemeMetadata(THEMES.find(t=>t.id===cur) || THEMES[0])}`;
 }
 
-/* ============================================================================
+function renderThemeTab(){
+  const cur = app.room.settings.theme || 'luxury';
+  return `
+  <p class="muted" style="font-size:12.5px; margin-top:0;">Theme controls the complete world/style pack everyone sees. Metadata is shown so the selection is clear.</p>
+  <div class="theme-grid">
+    ${THEMES.map(t=>renderThemeCard(t, cur===t.id, 'theme')).join('')}
+  </div>
+  ${renderDesignerStyleSelector()}`;
+}
+
+function renderAIDesignerTab(){
+  const cur = app.room.settings.theme || 'luxury';
+  const directions = AI_DESIGNER_DIRECTIONS.map(id=>THEMES.find(t=>t.id===id)).filter(Boolean);
+  return `
+  <p class="muted" style="font-size:12.5px; margin-top:0;">AI Designer directions are curated world presets. Picking one sets the theme; Designer Style below controls dimensional treatment.</p>
+  <div class="theme-grid">
+    ${directions.map(t=>renderThemeCard(t, cur===t.id, 'theme')).join('')}
+  </div>
+  ${renderDesignerStyleSelector()}`;
+}
+/* ----------------------------------------------------------------------------
    ROOM LIFECYCLE: CREATE / JOIN / START
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function buildFinalSpaces(boardDraft){
   const round2 = n => Math.max(2, Math.round(n/2)*2);
   return DEFAULT_BOARD.map(def=>{
@@ -893,9 +1034,9 @@ function leaveRoom(){
   render();
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    POLLING (near-real-time sync)
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function startPolling(){
   stopPolling();
   app.pollTimer = setInterval(pollRoom, 2500);
@@ -916,9 +1057,9 @@ async function pollRoom(){
   }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    SAVE HELPERS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 const _debounceTimers = {};
 function commitRoom(){
   app.room.rev = (app.room.rev||0)+1;
@@ -930,9 +1071,9 @@ function debounceSave(key, delay=500){
   _debounceTimers[key] = setTimeout(commitRoom, delay);
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    MODAL SCAFFOLD
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function openModal(type, data){ app.ui.modal = Object.assign({type}, data||{}); render(); }
 function closeModal(){ app.ui.modal = null; render(); }
 
@@ -1001,9 +1142,9 @@ function renderModal(){
     '<div class="modal-overlay" data-act="modalbg">'+content+'</div>');
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    EVENT WIRING & DISPATCH
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function wireEvents(){
   document.querySelectorAll('[data-act]').forEach(el=>{
     const tag = el.tagName;
@@ -1048,6 +1189,12 @@ function handleAction(ds, el, e){
       app.room.settings.theme = ds.id;
       app.room.settings.designerStyle = ds.id;
       document.body.dataset.theme = ds.id;
+      commitRoom(); render();
+      break;
+    }
+    case 'designer': {
+      app.room.settings.designer = ds.id;
+      document.body.dataset.designer = ds.id;
       commitRoom(); render();
       break;
     }
@@ -1117,9 +1264,9 @@ function handleAction(ds, el, e){
   }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    INIT / REJOIN
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function init(){
   const hash = location.hash.replace('#','');
   const parts = hash.split(':');
@@ -1142,9 +1289,9 @@ function init(){
 }
 init();
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    GAME HELPERS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function currentPlayer(){ return app.room.players[app.room.currentPlayerIndex]; }
 function myPlayer(){ return app.room.players.find(p=>p.id===app.me.id); }
 function isMyTurn(){ return app.room && currentPlayer().id===app.me.id; }
@@ -1156,9 +1303,9 @@ function pushLog(msg){
   if(room.log.length>60) room.log = room.log.slice(-60);
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    GAME SCREEN
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderGame(){
   const room = app.room;
   if(!room || !room.spaces) return renderLobby();
@@ -1323,9 +1470,9 @@ function renderGameOver(){
   </div>`;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    TURN LOOP: ROLL, MOVE, LAND
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function rollDice(){
   if(!isMyTurn()) return;
   const room = app.room;
@@ -1449,9 +1596,9 @@ function sendToJail(p){
   pushLog(p.name+' was sent to jail.');
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    RENT CALCULATION
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function calcRent(sp, owner){
   const room = app.room;
   if(sp.type==='property'){
@@ -1474,9 +1621,9 @@ function calcRent(sp, owner){
   return 0;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    PAYMENTS, DEBT & CARDS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function creditAmount(amount, payeeId, payerId, extra){
   const room = app.room;
   if(payeeId==='bank'){
@@ -1624,9 +1771,9 @@ function applyCardEffect(){
   }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    JAIL ACTIONS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function payBail(){
   if(!isMyTurn()) return;
   const room = app.room;
@@ -1645,9 +1792,9 @@ function useJailCard(){
   commitRoom(); render();
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    END TURN, WIN CHECK, RESET
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function endTurn(){
   if(!isMyTurn()) return;
   const room = app.room;
@@ -1717,9 +1864,9 @@ function resetToLobby(){
   commitRoom(); render();
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    TITLE DEED RENDERING
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderTitleDeed(sp){
   const groupColor = sp.group ? GROUP_COLORS[sp.group] : (GROUP_COLORS[sp.type]||'#888');
   function row(a,b){ return `<tr><td>${a}</td><td class="r">${b}</td></tr>`; }
@@ -1752,9 +1899,9 @@ function renderTitleDeed(sp){
   </div>`;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    BUY / DECLINE
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderBuyDecision(){
   const room = app.room;
   const sp = room.spaces[room.pendingAction.spaceId];
@@ -1793,9 +1940,9 @@ function declineProperty(){
   }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    AUCTIONS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function startAuction(spaceId){
   const room = app.room;
   const order = room.players.filter(p=>!p.bankrupt).map(p=>p.id);
@@ -1865,9 +2012,9 @@ function auctionPass(){
   if(room.auction){ commitRoom(); render(); }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    PROPERTY MANAGEMENT (build, sell, mortgage)
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function evenBuildOk(sp, action){
   const room = app.room;
   if(!room.settings.evenBuild) return true;
@@ -1931,9 +2078,9 @@ function unmortgageProperty(spaceId){
   commitRoom(); render();
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    PROPERTIES MODAL & BANKRUPTCY PANEL
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderPropertyManageRow(sp, p, fullSet){
   let buildControls = '';
   if(sp.type==='property'){
@@ -2011,9 +2158,9 @@ function renderBankruptCheck(){
   `;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    TRADING
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function describeTradeSide(cash, propIds, jail){
   const room = app.room;
   const parts = [];
