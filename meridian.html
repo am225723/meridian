@@ -8,9 +8,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
+/* ----------------------------------------------------------------------------
    THEME TOKENS
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 :root, [data-theme="luxury"]{
   --bg:#120d09; --board:#3a2a18; --panel:#1d1510; --panel2:#2b2118;
   --paper:#fff5df; --ink:#2a1b0f; --text:#fff4df; --muted:#d5b982;
@@ -46,6 +46,34 @@
   --line:rgba(234,244,238,0.14); --good:#7fd9b6; --shadow:rgba(0,0,0,.5);
   --v-glow:rgba(127,217,182,.18); --v-edge:#07110f; --v-board-hi:rgba(255,255,255,.08);
 }
+[data-theme="cyber"]{
+  --bg:#070914; --board:#101832; --panel:#0b1024; --panel2:#121a34;
+  --paper:#eef7ff; --ink:#10172f; --text:#eaf6ff; --muted:#95b9d7;
+  --accent:#35f0ff; --accent-ink:#051015; --accent2:#ff4fd8;
+  --line:rgba(91,232,255,.2); --good:#70ffad; --shadow:rgba(0,0,0,.62);
+  --v-glow:rgba(53,240,255,.28); --v-edge:#030714; --v-board-hi:rgba(255,79,216,.12);
+}
+[data-theme="enchanted"]{
+  --bg:#111025; --board:#26345f; --panel:#17152e; --panel2:#211d3d;
+  --paper:#fff7e7; --ink:#291d34; --text:#f8efff; --muted:#c7b4ef;
+  --accent:#d8b5ff; --accent-ink:#211530; --accent2:#6fd39a;
+  --line:rgba(216,181,255,.2); --good:#8fe8a8; --shadow:rgba(0,0,0,.56);
+  --v-glow:rgba(216,181,255,.28); --v-edge:#0b0c22; --v-board-hi:rgba(111,211,154,.13);
+}
+[data-theme="deco"]{
+  --bg:#0d1418; --board:#1c3135; --panel:#111b20; --panel2:#18262b;
+  --paper:#fbefd6; --ink:#24201a; --text:#f8ead0; --muted:#ccb58a;
+  --accent:#e5b85b; --accent-ink:#211608; --accent2:#1c8c8f;
+  --line:rgba(229,184,91,.2); --good:#83c987; --shadow:rgba(0,0,0,.58);
+  --v-glow:rgba(229,184,91,.24); --v-edge:#070d10; --v-board-hi:rgba(28,140,143,.12);
+}
+[data-theme="space"]{
+  --bg:#050713; --board:#131a31; --panel:#0b0f20; --panel2:#11172b;
+  --paper:#edf2ff; --ink:#141b2d; --text:#eff4ff; --muted:#aab6d8;
+  --accent:#9cc7ff; --accent-ink:#07101f; --accent2:#ff8f6b;
+  --line:rgba(156,199,255,.18); --good:#8de0c2; --shadow:rgba(0,0,0,.66);
+  --v-glow:rgba(156,199,255,.24); --v-edge:#02040d; --v-board-hi:rgba(255,255,255,.1);
+}
 
 
 [data-designer="architect"] .board{--v-designer-sheen:linear-gradient(135deg, rgba(255,255,255,.18), transparent 26%, rgba(255,255,255,.06) 52%, transparent 78%);}
@@ -53,9 +81,9 @@
 [data-designer="minimal"] .board{--v-designer-sheen:none;}
 [data-designer="minimal"] .cell, [data-designer="minimal"] .die{box-shadow:none;}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    RESET & BASE
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
@@ -74,9 +102,9 @@ input,select{font-family:inherit;}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
 a{color:var(--accent);}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    LAYOUT SHELL
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 #app{max-width:1280px; margin:0 auto; padding:14px; min-height:100vh; display:flex; flex-direction:column; gap:12px;}
 
 .topbar{
@@ -96,9 +124,9 @@ a{color:var(--accent);}
 }
 .topbar-right{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    GENERIC UI ELEMENTS
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .card{
   background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 42%), var(--panel); border:1px solid var(--line); border-radius:14px;
   padding:18px; box-shadow:0 12px 34px var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
@@ -132,9 +160,9 @@ h2.section-title{
   margin:0 0 12px 0; font-weight:700; font-family:'Inter',sans-serif;
 }
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    HOME SCREEN
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .home-wrap{display:flex; flex-direction:column; align-items:center; padding:40px 12px;}
 .home-card{max-width:460px; width:100%;}
 .home-hero{text-align:center; margin-bottom:26px;}
@@ -145,9 +173,9 @@ h2.section-title{
 .tab.active{background:var(--accent); color:var(--accent-ink);}
 .error-text{color:var(--accent2); font-size:13px; font-weight:600; min-height:18px;}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    LOBBY
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .lobby-grid{display:grid; grid-template-columns:1fr; gap:14px;}
 @media(min-width:860px){.lobby-grid{grid-template-columns: 320px 1fr;}}
 .player-chip{
@@ -176,12 +204,15 @@ h2.section-title{
 .theme-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px;}
 .theme-opt{border:2px solid var(--line); border-radius:10px; padding:10px; text-align:center; cursor:pointer; font-weight:700; font-size:12.5px;}
 .theme-opt.active{border-color:var(--accent);}
+.theme-opt .theme-label{display:block; margin-bottom:4px;}
+.theme-meta{font-size:10.5px; line-height:1.45; color:var(--muted); font-weight:600; text-align:left; margin-top:8px;}
+.theme-meta b{color:var(--text);}
 .theme-swatches{display:flex; justify-content:center; gap:4px; margin-bottom:6px;}
 .swatch{width:14px; height:14px; border-radius:50%;}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    GAME LAYOUT
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .game-grid{display:grid; grid-template-columns:1fr; gap:14px;}
 @media(min-width:980px){.game-grid{grid-template-columns: minmax(0,1fr) 320px;}}
 
@@ -284,9 +315,9 @@ h2.section-title{
 .log-panel .log-entry{padding:4px 0; border-bottom:1px solid var(--line);}
 .log-panel .log-entry b{color:var(--text);}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    MODALS
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .modal-overlay{
   position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center;
   z-index:50; padding:14px;
@@ -307,9 +338,9 @@ h2.section-title{
 .title-deed td.r{text-align:right; font-weight:700;}
 .modal-close{position:sticky; top:0;}
 
-/* ============================================================
+/* ----------------------------------------------------------------------------
    MISC
-   ============================================================ */
+   ---------------------------------------------------------------------------- */
 .muted{color:var(--muted);}
 .center{text-align:center;}
 .hidden{display:none !important;}
@@ -326,9 +357,9 @@ hr.sep{border:none; border-top:1px solid var(--line); margin:14px 0;}
 <div id="app"></div>
 
 <script>
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    DATA: BOARD, CARDS, THEMES, SETTINGS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 const GROUP_COLORS = {
   brown:'#8b5a2b', lightblue:'#9fd8f0', pink:'#e0529c', orange:'#f0a13a',
   red:'#e0453a', yellow:'#f5d23a', green:'#3aa563', darkblue:'#2f6fb0',
@@ -423,12 +454,18 @@ const TREASURY_CARDS = [
 ];
 
 const THEMES = [
-  {id:'luxury',   label:'Luxury Estate', swatches:['#120d09','#f2c15b','#9f2f2f','#fff5df']},
-  {id:'felt',     label:'Felt Green',    swatches:['#1f4537','#cda349','#b2433c','#f4eedd']},
-  {id:'midnight', label:'Midnight',      swatches:['#161d36','#e8c14a','#d65d6b','#eef0fb']},
-  {id:'sunset',   label:'Sunset',        swatches:['#7a3b2e','#f3b54a','#3f7d6e','#fbf0e1']},
-  {id:'mint',     label:'Mint Studio',   swatches:['#1f3530','#7fd9b6','#e8866f','#f1f7ef']},
+  {id:'luxury', label:'Luxury Estate', swatches:['#120d09','#f2c15b','#9f2f2f','#fff5df'], direction:'Luxury Estate', boardMaterial:'lacquered walnut with brass inlay', tokenStyle:'polished enamel pawns', diceStyle:'ivory casino dice', propertyCardStyle:'embossed cream deeds', buildingStyle:'green glass houses and ruby hotels', groupNaming:'estate districts'},
+  {id:'felt', label:'Felt Green', swatches:['#1f4537','#cda349','#b2433c','#f4eedd'], direction:'Classic Felt Table', boardMaterial:'casino felt with stitched rails', tokenStyle:'painted metal pawns', diceStyle:'classic bone dice', propertyCardStyle:'traditional paper deeds', buildingStyle:'classic houses and hotels', groupNaming:'street color sets'},
+  {id:'midnight', label:'Midnight', swatches:['#161d36','#e8c14a','#d65d6b','#eef0fb'], direction:'Midnight Gala', boardMaterial:'dark velvet and gilt trim', tokenStyle:'jewel-toned glass tokens', diceStyle:'moonlit pearl dice', propertyCardStyle:'formal navy title cards', buildingStyle:'lit townhouse miniatures', groupNaming:'avenue collections'},
+  {id:'sunset', label:'Sunset', swatches:['#7a3b2e','#f3b54a','#3f7d6e','#fbf0e1'], direction:'Sunset Resort', boardMaterial:'warm terracotta tile', tokenStyle:'ceramic resort markers', diceStyle:'sun-washed dice', propertyCardStyle:'boutique travel deeds', buildingStyle:'stucco villas and resorts', groupNaming:'coastal neighborhoods'},
+  {id:'mint', label:'Mint Studio', swatches:['#1f3530','#7fd9b6','#e8866f','#f1f7ef'], direction:'Mint Studio', boardMaterial:'matte studio composite', tokenStyle:'soft-touch design tokens', diceStyle:'minimal mint dice', propertyCardStyle:'clean studio cards', buildingStyle:'modern modular buildings', groupNaming:'design zones'},
+  {id:'cyber', label:'Cyber Noir', swatches:['#070914','#35f0ff','#ff4fd8','#eef7ff'], direction:'Cyber Noir', boardMaterial:'smoked glass with neon circuitry', tokenStyle:'holographic chrome avatars', diceStyle:'glowing edge-lit dice', propertyCardStyle:'augmented neon deeds', buildingStyle:'micro tower blocks and data spires', groupNaming:'neon sectors'},
+  {id:'enchanted', label:'Enchanted Atlas', swatches:['#111025','#d8b5ff','#6fd39a','#fff7e7'], direction:'Enchanted Atlas', boardMaterial:'star-map parchment over carved oak', tokenStyle:'enchanted gemstone familiars', diceStyle:'rune-etched dice', propertyCardStyle:'illuminated atlas cards', buildingStyle:'cottages and crystal keeps', groupNaming:'mythic realms'},
+  {id:'deco', label:'Art Deco City', swatches:['#0d1418','#e5b85b','#1c8c8f','#fbefd6'], direction:'Art Deco City', boardMaterial:'black marble with brass sunbursts', tokenStyle:'streamlined chrome pieces', diceStyle:'black-and-gold dice', propertyCardStyle:'deco ledger deeds', buildingStyle:'setback skyscrapers and grand hotels', groupNaming:'city districts'},
+  {id:'space', label:'Space Colony', swatches:['#050713','#9cc7ff','#ff8f6b','#edf2ff'], direction:'Space Colony', boardMaterial:'orbital alloy deck plating', tokenStyle:'mini rover tokens', diceStyle:'translucent starlight dice', propertyCardStyle:'mission manifest deeds', buildingStyle:'hab domes and command towers', groupNaming:'colony sectors'}
 ];
+
+const AI_DESIGNER_DIRECTIONS = ['luxury','cyber','enchanted','deco','space'];
 
 const DESIGNER_STYLES = [
   {id:'architect', label:'Architectural Depth'},
@@ -450,9 +487,9 @@ function defaultSettings(){
   };
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    UTILITIES
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function fmtMoney(n){
   const neg = n<0; n = Math.abs(Math.round(n));
   return (neg?'-':'') + '$' + n.toLocaleString('en-US');
@@ -482,9 +519,9 @@ function getGridPos(i){
   if(i>=31 && i<=39) return {row:i-29, col:11};
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    STORAGE
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 async function loadRoom(code){
   try{
     const res = await window.storage.get('room:'+code, true);
@@ -498,9 +535,9 @@ async function saveRoom(code, state){
   }catch(e){ return false; }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    APP STATE
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 const app = {
   screen:'home',          // home | lobby | game
   roomCode:null,
@@ -538,9 +575,9 @@ function render(){
 
 function setError(msg){ app.ui.errorMsg = msg; render(); }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    HOME SCREEN
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderHome(){
   const ui = app.ui;
   return `
@@ -573,9 +610,9 @@ function renderHome(){
   </div>`;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    SHARED TOPBAR
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderTopbar(rightExtra){
   return `
   <div class="topbar">
@@ -591,9 +628,9 @@ function renderTopbar(rightExtra){
   </div>`;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    LOBBY SCREEN
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function isHost(){
   return app.room && app.room.hostId === app.me.id;
 }
@@ -639,14 +676,16 @@ function renderSetupPanel(){
     <button class="setup-tab ${tab==='rules'?'active':''}" data-act="setuptab" data-tab="rules">House Rules</button>
     <button class="setup-tab ${tab==='board'?'active':''}" data-act="setuptab" data-tab="board">Board &amp; Properties</button>
     <button class="setup-tab ${tab==='theme'?'active':''}" data-act="setuptab" data-tab="theme">Theme</button>
+    <button class="setup-tab ${tab==='designer'?'active':''}" data-act="setuptab" data-tab="designer">AI Designer</button>
   </div>
-  ${tab==='rules' ? renderRulesTab() : tab==='board' ? renderBoardTab() : renderThemeTab()}
+  ${tab==='rules' ? renderRulesTab() : tab==='board' ? renderBoardTab() : tab==='designer' ? renderAIDesignerTab() : renderThemeTab()}
   `;
 }
 
 function renderSetupReadOnly(){
   const s = app.room.settings;
-  const themeLabel = (THEMES.find(t=>t.id===s.theme)||{}).label || s.theme;
+  const theme = THEMES.find(t=>t.id===(s.theme||'luxury')) || THEMES[0];
+  const themeLabel = theme.label || s.theme;
   const designerLabel = (DESIGNER_STYLES.find(d=>d.id===(s.designer||'architect'))||{}).label || (s.designer||'architect');
   return `
   <h2 class="section-title">Game setup</h2>
@@ -657,7 +696,8 @@ function renderSetupReadOnly(){
     <li>Double rent on full color sets: <b>${s.doubleRentFullSet?'On':'Off'}</b></li>
     <li>Even house-building rule: <b>${s.evenBuild?'On':'Off'}</b></li>
     <li>Auction unbought properties: <b>${s.auctionOnDecline?'On':'Off'}</b></li>
-    <li>Theme: <b>${themeLabel}</b></li>
+    <li>Theme: <b>${themeLabel}</b> <span class="muted">(${esc(theme.direction)})</span></li>
+    <li>Board material: <b>${esc(theme.boardMaterial)}</b></li>
     <li>AI Designer style: <b>${designerLabel}</b></li>
   </ul>`;
 }
@@ -718,31 +758,60 @@ function renderBoardTab(){
   </div>`;
 }
 
-function renderThemeTab(){
-  const cur = app.room.settings.theme || 'luxury';
+function renderThemeCard(t, active, act){
+  return `
+      <div class="theme-opt ${active?'active':''}" data-act="${act}" data-id="${t.id}">
+        <div class="theme-swatches">${t.swatches.map(c=>`<span class="swatch" style="background:${c}"></span>`).join('')}</div>
+        <span class="theme-label">${esc(t.label)}</span>
+        <div class="theme-meta">
+          <div><b>Direction:</b> ${esc(t.direction)}</div>
+          <div><b>Board:</b> ${esc(t.boardMaterial)}</div>
+          <div><b>Tokens:</b> ${esc(t.tokenStyle)}</div>
+          <div><b>Dice:</b> ${esc(t.diceStyle)}</div>
+          <div><b>Cards:</b> ${esc(t.propertyCardStyle)}</div>
+          <div><b>Buildings:</b> ${esc(t.buildingStyle)}</div>
+          <div><b>Groups:</b> ${esc(t.groupNaming)}</div>
+        </div>
+      </div>`;
+}
+
+function renderDesignerStyleSelector(){
   const designer = app.room.settings.designer || 'architect';
   return `
-  <p class="muted" style="font-size:12.5px; margin-top:0;">Pick a look for the table. Everyone sees the same theme and AI Designer direction.</p>
-  <div class="theme-grid">
-    ${THEMES.map(t=>`
-      <div class="theme-opt ${cur===t.id?'active':''}" data-act="theme" data-id="${t.id}">
-        <div class="theme-swatches">${t.swatches.map(c=>`<span class="swatch" style="background:${c}"></span>`).join('')}</div>
-        ${t.label}
-      </div>`).join('')}
-  </div>
   <hr class="sep">
-  <h2 class="section-title">AI Designer Style</h2>
+  <h2 class="section-title">Designer Style</h2>
+  <p class="muted" style="font-size:12.5px; margin-top:0;">Choose only the visual treatment. This does not change the theme world or game rules.</p>
   <div class="theme-grid">
     ${DESIGNER_STYLES.map(d=>`
       <div class="theme-opt ${designer===d.id?'active':''}" data-act="designer" data-id="${d.id}">
-        ${d.label}
+        ${esc(d.label)}
       </div>`).join('')}
   </div>`;
 }
 
-/* ============================================================================
+function renderThemeTab(){
+  const cur = app.room.settings.theme || 'luxury';
+  return `
+  <p class="muted" style="font-size:12.5px; margin-top:0;">Theme controls the complete world/style pack everyone sees. Metadata is shown so the selection is clear.</p>
+  <div class="theme-grid">
+    ${THEMES.map(t=>renderThemeCard(t, cur===t.id, 'theme')).join('')}
+  </div>
+  ${renderDesignerStyleSelector()}`;
+}
+
+function renderAIDesignerTab(){
+  const cur = app.room.settings.theme || 'luxury';
+  const directions = AI_DESIGNER_DIRECTIONS.map(id=>THEMES.find(t=>t.id===id)).filter(Boolean);
+  return `
+  <p class="muted" style="font-size:12.5px; margin-top:0;">AI Designer directions are curated world presets. Picking one sets the theme; Designer Style below controls dimensional treatment.</p>
+  <div class="theme-grid">
+    ${directions.map(t=>renderThemeCard(t, cur===t.id, 'theme')).join('')}
+  </div>
+  ${renderDesignerStyleSelector()}`;
+}
+/* ----------------------------------------------------------------------------
    ROOM LIFECYCLE: CREATE / JOIN / START
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function buildFinalSpaces(boardDraft){
   const round2 = n => Math.max(2, Math.round(n/2)*2);
   return DEFAULT_BOARD.map(def=>{
@@ -857,9 +926,9 @@ function leaveRoom(){
   render();
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    POLLING (near-real-time sync)
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function startPolling(){
   stopPolling();
   app.pollTimer = setInterval(pollRoom, 2500);
@@ -880,9 +949,9 @@ async function pollRoom(){
   }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    SAVE HELPERS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 const _debounceTimers = {};
 function commitRoom(){
   app.room.rev = (app.room.rev||0)+1;
@@ -894,9 +963,9 @@ function debounceSave(key, delay=500){
   _debounceTimers[key] = setTimeout(commitRoom, delay);
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    MODAL SCAFFOLD
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function openModal(type, data){ app.ui.modal = Object.assign({type}, data||{}); render(); }
 function closeModal(){ app.ui.modal = null; render(); }
 
@@ -965,9 +1034,9 @@ function renderModal(){
     '<div class="modal-overlay" data-act="modalbg">'+content+'</div>');
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    EVENT WIRING & DISPATCH
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function wireEvents(){
   document.querySelectorAll('[data-act]').forEach(el=>{
     const tag = el.tagName;
@@ -1079,9 +1148,9 @@ function handleAction(ds, el, e){
   }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    INIT / REJOIN
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function init(){
   const hash = location.hash.replace('#','');
   const parts = hash.split(':');
@@ -1104,9 +1173,9 @@ function init(){
 }
 init();
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    GAME HELPERS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function currentPlayer(){ return app.room.players[app.room.currentPlayerIndex]; }
 function myPlayer(){ return app.room.players.find(p=>p.id===app.me.id); }
 function isMyTurn(){ return app.room && currentPlayer().id===app.me.id; }
@@ -1118,9 +1187,9 @@ function pushLog(msg){
   if(room.log.length>60) room.log = room.log.slice(-60);
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    GAME SCREEN
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderGame(){
   const room = app.room;
   if(!room || !room.spaces) return renderLobby();
@@ -1285,9 +1354,9 @@ function renderGameOver(){
   </div>`;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    TURN LOOP: ROLL, MOVE, LAND
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function rollDice(){
   if(!isMyTurn()) return;
   const room = app.room;
@@ -1411,9 +1480,9 @@ function sendToJail(p){
   pushLog(p.name+' was sent to jail.');
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    RENT CALCULATION
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function calcRent(sp, owner){
   const room = app.room;
   if(sp.type==='property'){
@@ -1436,9 +1505,9 @@ function calcRent(sp, owner){
   return 0;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    PAYMENTS, DEBT & CARDS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function creditAmount(amount, payeeId, payerId, extra){
   const room = app.room;
   if(payeeId==='bank'){
@@ -1586,9 +1655,9 @@ function applyCardEffect(){
   }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    JAIL ACTIONS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function payBail(){
   if(!isMyTurn()) return;
   const room = app.room;
@@ -1607,9 +1676,9 @@ function useJailCard(){
   commitRoom(); render();
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    END TURN, WIN CHECK, RESET
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function endTurn(){
   if(!isMyTurn()) return;
   const room = app.room;
@@ -1679,9 +1748,9 @@ function resetToLobby(){
   commitRoom(); render();
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    TITLE DEED RENDERING
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderTitleDeed(sp){
   const groupColor = sp.group ? GROUP_COLORS[sp.group] : (GROUP_COLORS[sp.type]||'#888');
   function row(a,b){ return `<tr><td>${a}</td><td class="r">${b}</td></tr>`; }
@@ -1713,9 +1782,9 @@ function renderTitleDeed(sp){
   </div>`;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    BUY / DECLINE
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderBuyDecision(){
   const room = app.room;
   const sp = room.spaces[room.pendingAction.spaceId];
@@ -1754,9 +1823,9 @@ function declineProperty(){
   }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    AUCTIONS
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function startAuction(spaceId){
   const room = app.room;
   const order = room.players.filter(p=>!p.bankrupt).map(p=>p.id);
@@ -1826,9 +1895,9 @@ function auctionPass(){
   if(room.auction){ commitRoom(); render(); }
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    PROPERTY MANAGEMENT (build, sell, mortgage)
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function evenBuildOk(sp, action){
   const room = app.room;
   if(!room.settings.evenBuild) return true;
@@ -1892,9 +1961,9 @@ function unmortgageProperty(spaceId){
   commitRoom(); render();
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    PROPERTIES MODAL & BANKRUPTCY PANEL
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function renderPropertyManageRow(sp, p, fullSet){
   let buildControls = '';
   if(sp.type==='property'){
@@ -1972,9 +2041,9 @@ function renderBankruptCheck(){
   `;
 }
 
-/* ============================================================================
+/* ----------------------------------------------------------------------------
    TRADING
-   ============================================================================ */
+   ---------------------------------------------------------------------------- */
 function describeTradeSide(cash, propIds, jail){
   const room = app.room;
   const parts = [];
