@@ -1,0 +1,2044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Meridian — Property Trading Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   THEME TOKENS
+   ============================================================ */
+:root, [data-theme="felt"]{
+  --bg:#0d2419; --board:#1f4537; --panel:#16331f; --panel2:#1c3d29;
+  --paper:#f4eedd; --ink:#2b2420; --text:#eef3ea; --muted:#a9bfb0;
+  --accent:#cda349; --accent-ink:#2b2018; --accent2:#b2433c;
+  --line:rgba(244,238,221,0.16); --good:#6fae6e; --shadow:rgba(0,0,0,.45);
+}
+[data-theme="midnight"]{
+  --bg:#0b1020; --board:#161d36; --panel:#10162c; --panel2:#151c38;
+  --paper:#eef0fb; --ink:#1c2240; --text:#eef0fb; --muted:#9aa3c7;
+  --accent:#e8c14a; --accent-ink:#241c08; --accent2:#d65d6b;
+  --line:rgba(232,225,255,0.14); --good:#7fd1a0; --shadow:rgba(0,0,0,.55);
+}
+[data-theme="sunset"]{
+  --bg:#2c1812; --board:#7a3b2e; --panel:#3a1f17; --panel2:#48261b;
+  --paper:#fbf0e1; --ink:#3a261c; --text:#fdece0; --muted:#e0b9a8;
+  --accent:#f3b54a; --accent-ink:#2c1808; --accent2:#3f7d6e;
+  --line:rgba(253,236,224,0.18); --good:#8fd0b0; --shadow:rgba(0,0,0,.45);
+}
+[data-theme="mint"]{
+  --bg:#13201d; --board:#1f3530; --panel:#0f1a18; --panel2:#16241f;
+  --paper:#f1f7ef; --ink:#1f2e29; --text:#eaf4ee; --muted:#9fc2b4;
+  --accent:#7fd9b6; --accent-ink:#0c2620; --accent2:#e8866f;
+  --line:rgba(234,244,238,0.14); --good:#7fd9b6; --shadow:rgba(0,0,0,.5);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{font-family:'Fraunces',serif;}
+.mono{font-family:'JetBrains Mono',monospace;}
+button{font-family:inherit; cursor:pointer;}
+input,select{font-family:inherit;}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+a{color:var(--accent);}
+
+/* ============================================================
+   LAYOUT SHELL
+   ============================================================ */
+#app{max-width:1280px; margin:0 auto; padding:14px; min-height:100vh; display:flex; flex-direction:column; gap:12px;}
+
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  flex-wrap:wrap;
+}
+.brand{display:flex; align-items:baseline; gap:10px;}
+.brand h1{
+  font-size:clamp(22px,4vw,32px); margin:0; font-weight:700;
+  letter-spacing:0.04em; color:var(--accent);
+}
+.brand .tagline{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted);}
+.room-pill{
+  font-family:'JetBrains Mono',monospace; font-weight:700; letter-spacing:.12em;
+  background:var(--panel2); border:1px solid var(--line); border-radius:999px;
+  padding:6px 14px; font-size:13px; color:var(--accent);
+}
+.topbar-right{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+
+/* ============================================================
+   GENERIC UI ELEMENTS
+   ============================================================ */
+.card{
+  background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:18px; box-shadow:0 6px 24px var(--shadow);
+}
+.btn{
+  border-radius:10px; border:1px solid var(--line); background:var(--panel2);
+  color:var(--text); padding:10px 16px; font-size:14px; font-weight:600;
+  transition:transform .08s ease, background .15s ease; white-space:nowrap;
+}
+.btn:hover{background:var(--panel);}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.4; cursor:not-allowed;}
+.btn-accent{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+.btn-accent:hover{filter:brightness(1.08);}
+.btn-danger{background:var(--accent2); color:#fff; border-color:var(--accent2);}
+.btn-ghost{background:transparent;}
+.btn-sm{padding:6px 10px; font-size:12px; border-radius:8px;}
+.btn-row{display:flex; gap:8px; flex-wrap:wrap;}
+
+label.field{display:flex; flex-direction:column; gap:5px; font-size:13px; color:var(--muted); font-weight:600;}
+.field input[type=text], .field input[type=number], .field select{
+  background:var(--panel2); border:1px solid var(--line); color:var(--text);
+  border-radius:8px; padding:9px 11px; font-size:14px;
+}
+.field input[type=number]{font-family:'JetBrains Mono',monospace;}
+.checkrow{display:flex; align-items:center; gap:9px; font-size:13.5px; padding:6px 0;}
+.checkrow input{width:17px; height:17px; accent-color:var(--accent);}
+
+h2.section-title{
+  font-size:13px; text-transform:uppercase; letter-spacing:.16em; color:var(--accent);
+  margin:0 0 12px 0; font-weight:700; font-family:'Inter',sans-serif;
+}
+
+/* ============================================================
+   HOME SCREEN
+   ============================================================ */
+.home-wrap{display:flex; flex-direction:column; align-items:center; padding:40px 12px;}
+.home-card{max-width:460px; width:100%;}
+.home-hero{text-align:center; margin-bottom:26px;}
+.home-hero .display{font-size:clamp(34px,8vw,52px); color:var(--accent); margin:0; font-weight:900; letter-spacing:.03em;}
+.home-hero p{color:var(--muted); margin:8px 0 0; font-size:14.5px;}
+.tabs{display:flex; gap:6px; margin-bottom:16px; background:var(--panel2); border-radius:10px; padding:4px;}
+.tab{flex:1; text-align:center; padding:9px; border-radius:8px; font-weight:700; font-size:13px; color:var(--muted); cursor:pointer; border:none; background:transparent;}
+.tab.active{background:var(--accent); color:var(--accent-ink);}
+.error-text{color:var(--accent2); font-size:13px; font-weight:600; min-height:18px;}
+
+/* ============================================================
+   LOBBY
+   ============================================================ */
+.lobby-grid{display:grid; grid-template-columns:1fr; gap:14px;}
+@media(min-width:860px){.lobby-grid{grid-template-columns: 320px 1fr;}}
+.player-chip{
+  display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:10px;
+  background:var(--panel2); margin-bottom:8px;
+}
+.token{
+  width:30px; height:30px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:12px; color:#fff; border:2px solid rgba(255,255,255,.35);
+  font-family:'JetBrains Mono',monospace;
+}
+.player-chip .pname{font-weight:700; font-size:14px;}
+.player-chip .ptag{font-size:11px; color:var(--muted); margin-left:auto; text-transform:uppercase; letter-spacing:.08em;}
+
+.setup-tabs{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;}
+.setup-tab{padding:8px 14px; border-radius:8px; border:1px solid var(--line); background:var(--panel2); color:var(--muted); font-weight:700; font-size:12.5px; text-transform:uppercase; letter-spacing:.08em;}
+.setup-tab.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+.board-edit-table{width:100%; border-collapse:collapse; font-size:13px;}
+.board-edit-table th{text-align:left; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.1em; padding:6px 8px; border-bottom:1px solid var(--line);}
+.board-edit-table td{padding:4px 8px; border-bottom:1px solid var(--line); vertical-align:middle;}
+.board-edit-table input[type=text]{width:100%; min-width:90px;}
+.board-edit-table input[type=number]{width:78px;}
+.group-swatch{display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:middle;}
+.theme-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px;}
+.theme-opt{border:2px solid var(--line); border-radius:10px; padding:10px; text-align:center; cursor:pointer; font-weight:700; font-size:12.5px;}
+.theme-opt.active{border-color:var(--accent);}
+.theme-swatches{display:flex; justify-content:center; gap:4px; margin-bottom:6px;}
+.swatch{width:14px; height:14px; border-radius:50%;}
+
+/* ============================================================
+   GAME LAYOUT
+   ============================================================ */
+.game-grid{display:grid; grid-template-columns:1fr; gap:14px;}
+@media(min-width:980px){.game-grid{grid-template-columns: minmax(0,1fr) 320px;}}
+
+/* ---- BOARD ---- */
+.board-wrap{display:flex; justify-content:center;}
+.board{
+  width:100%; max-width:760px; aspect-ratio:1/1;
+  display:grid;
+  grid-template-columns: 1.35fr repeat(9,1fr) 1.35fr;
+  grid-template-rows: 1.35fr repeat(9,1fr) 1.35fr;
+  background:var(--board); border-radius:10px; border:6px solid var(--panel2);
+  box-shadow:0 10px 36px var(--shadow); position:relative; padding:3px; gap:2px;
+}
+.cell{
+  position:relative; background:var(--paper); color:var(--ink); border-radius:3px;
+  display:flex; flex-direction:column; overflow:hidden; min-width:0; min-height:0;
+}
+.cell .band{height:14%; min-height:6px; width:100%;}
+.cell .label{
+  flex:1; display:flex; align-items:center; justify-content:center; text-align:center;
+  font-size:clamp(5.5px,1.05vw,9.5px); font-weight:700; padding:2px 1px; line-height:1.15;
+  letter-spacing:0.01em; text-transform:uppercase; overflow-wrap:anywhere; word-break:break-word; hyphens:auto;
+  max-width:100%;
+}
+.cell .price{font-size:clamp(5px,0.9vw,8px); font-weight:600; color:var(--ink); opacity:.65; padding-bottom:2px; font-family:'JetBrains Mono',monospace;}
+.cell.side-left .label, .cell.side-left .price{writing-mode:vertical-rl; transform:rotate(180deg);}
+.cell.side-right .label, .cell.side-right .price{writing-mode:vertical-rl;}
+.cell.side-left, .cell.side-right{flex-direction:row;}
+.cell.side-left .band, .cell.side-right .band{height:100%; width:14%; min-height:0; min-width:6px;}
+.cell.side-right{flex-direction:row-reverse;}
+.cell.corner{display:flex; align-items:center; justify-content:center; text-align:center; font-size:clamp(7px,1.4vw,12px); font-weight:800;}
+.cell.corner .label{font-size:clamp(7px,1.4vw,13px);}
+.cell.owned{box-shadow:inset 0 0 0 3px var(--owner-color, transparent);}
+.cell.mortgaged{filter:grayscale(.6) brightness(.85);}
+.cell .houses{position:absolute; top:2px; left:2px; right:2px; display:flex; gap:1px; justify-content:center; z-index:2;}
+.cell.side-left .houses, .cell.side-right .houses{top:auto; left:2px; right:2px; bottom:2px; flex-direction:row;}
+.house-icon{width:7px; height:7px; background:#3aa563; border:1px solid #1f5c33; border-radius:1px;}
+.hotel-icon{width:11px; height:9px; background:#c0392b; border:1px solid #6e1c12; border-radius:1px;}
+.cell .tokens{position:absolute; bottom:2px; left:2px; right:2px; display:flex; flex-wrap:wrap; gap:1px; justify-content:center; z-index:3;}
+.cell.side-left .tokens, .cell.side-right .tokens{bottom:auto; top:50%; left:2px; right:2px;}
+.mini-token{
+  width:11px; height:11px; border-radius:50%; border:1px solid rgba(255,255,255,.6);
+  font-size:6px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800;
+}
+.center-area{
+  grid-row:2/11; grid-column:2/11; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; padding:10px; text-align:center; color:var(--text);
+}
+.center-area .display{font-size:clamp(20px,4vw,40px); color:var(--accent); margin:0; letter-spacing:.08em;}
+.dice-row{display:flex; gap:10px;}
+.die{
+  width:clamp(34px,7vw,52px); height:clamp(34px,7vw,52px); background:var(--paper); color:var(--ink);
+  border-radius:8px; display:flex; align-items:center; justify-content:center;
+  font-size:clamp(16px,3.4vw,26px); font-weight:800; font-family:'JetBrains Mono',monospace;
+  box-shadow:0 4px 10px var(--shadow);
+}
+.die.rolling{animation:roll .5s ease;}
+@keyframes roll{
+  0%{transform:rotate(0deg) scale(1);}
+  30%{transform:rotate(160deg) scale(1.12);}
+  60%{transform:rotate(280deg) scale(.94);}
+  100%{transform:rotate(360deg) scale(1);}
+}
+@media (prefers-reduced-motion: reduce){ .die.rolling{animation:none;} }
+.turn-banner{font-size:14px; font-weight:700;}
+.turn-banner .pname-inline{color:var(--accent);}
+
+/* ---- SIDEBAR ---- */
+.sidebar{display:flex; flex-direction:column; gap:12px;}
+.players-list .player-row{
+  display:flex; align-items:center; gap:9px; padding:8px 9px; border-radius:10px; margin-bottom:6px;
+  background:var(--panel2);
+}
+.players-list .player-row.current{box-shadow:0 0 0 2px var(--accent) inset;}
+.players-list .player-row.bankrupt{opacity:.4;}
+.player-row .pname{font-weight:700; font-size:13.5px;}
+.player-row .pcash{margin-left:auto; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px;}
+.player-row .pmeta{font-size:10.5px; color:var(--muted);}
+
+.action-panel .btn{width:100%; margin-bottom:8px; text-align:center;}
+.log-panel{max-height:170px; overflow-y:auto; font-size:12px; color:var(--muted); display:flex; flex-direction:column-reverse; gap:4px;}
+.log-panel .log-entry{padding:4px 0; border-bottom:1px solid var(--line);}
+.log-panel .log-entry b{color:var(--text);}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center;
+  z-index:50; padding:14px;
+}
+.modal{
+  background:var(--paper); color:var(--ink); border-radius:14px; padding:22px; max-width:440px; width:100%;
+  max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.modal h3{margin:0 0 4px; font-size:20px;}
+.modal .modal-sub{color:#6b6155; font-size:12.5px; margin:0 0 14px; text-transform:uppercase; letter-spacing:.1em; font-weight:700;}
+.title-deed{border:3px solid var(--ink); border-radius:8px; padding:14px; margin-bottom:14px;}
+.title-deed .td-header{
+  text-align:center; font-weight:800; font-size:15px; padding:6px; margin:-14px -14px 10px; border-radius:6px 6px 0 0;
+  color:#fff; text-transform:uppercase; letter-spacing:.06em;
+}
+.title-deed table{width:100%; font-size:13px; font-family:'JetBrains Mono',monospace; border-collapse:collapse;}
+.title-deed td{padding:2px 0; border-bottom:1px dashed #cfc6b4;}
+.title-deed td.r{text-align:right; font-weight:700;}
+.modal-close{position:sticky; top:0;}
+
+/* ============================================================
+   MISC
+   ============================================================ */
+.muted{color:var(--muted);}
+.center{text-align:center;}
+.hidden{display:none !important;}
+.flex-between{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+.scroll-x{overflow-x:auto;}
+.badge{display:inline-block; padding:2px 8px; border-radius:999px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;}
+.badge-good{background:var(--good); color:#0b2316;}
+.badge-bad{background:var(--accent2); color:#fff;}
+.badge-muted{background:var(--panel2); color:var(--muted);}
+hr.sep{border:none; border-top:1px solid var(--line); margin:14px 0;}
+</style>
+</head>
+<body data-theme="felt">
+<div id="app"></div>
+
+<script>
+/* ============================================================================
+   DATA: BOARD, CARDS, THEMES, SETTINGS
+   ============================================================================ */
+const GROUP_COLORS = {
+  brown:'#8b5a2b', lightblue:'#9fd8f0', pink:'#e0529c', orange:'#f0a13a',
+  red:'#e0453a', yellow:'#f5d23a', green:'#3aa563', darkblue:'#2f6fb0',
+  railroad:'#4a4a4a', utility:'#8a8a8a', special:'transparent'
+};
+const GROUP_LABELS = {
+  brown:'Brown', lightblue:'Light Blue', pink:'Magenta', orange:'Orange',
+  red:'Red', yellow:'Yellow', green:'Green', darkblue:'Dark Blue',
+  railroad:'Transit', utility:'Utility'
+};
+
+// 40-space board. Properties carry rent table [base,h1,h2,h3,h4,hotel].
+const DEFAULT_BOARD = [
+  {id:0,  name:'Go',                 type:'go'},
+  {id:1,  name:'Maple Lane',         type:'property', group:'brown',     price:60,  rent:[2,10,30,90,160,250],     houseCost:50,  mortgage:30},
+  {id:2,  name:'Treasury',           type:'treasury'},
+  {id:3,  name:'Cedar Lane',         type:'property', group:'brown',     price:60,  rent:[4,20,60,180,320,450],    houseCost:50,  mortgage:30},
+  {id:4,  name:'City Toll',          type:'tax', amount:200},
+  {id:5,  name:'Central Station',    type:'railroad', price:200, mortgage:100},
+  {id:6,  name:'Birch Avenue',       type:'property', group:'lightblue', price:100, rent:[6,30,90,270,400,550],    houseCost:50,  mortgage:50},
+  {id:7,  name:'Fortune',            type:'fortune'},
+  {id:8,  name:'Oakwood Drive',      type:'property', group:'lightblue', price:100, rent:[6,30,90,270,400,550],    houseCost:50,  mortgage:50},
+  {id:9,  name:'Hilltop Road',       type:'property', group:'lightblue', price:120, rent:[8,40,100,300,450,600],   houseCost:50,  mortgage:60},
+  {id:10, name:'Jail',               type:'jail'},
+  {id:11, name:'Garden Street',      type:'property', group:'pink',      price:140, rent:[10,50,150,450,625,750],  houseCost:100, mortgage:70},
+  {id:12, name:'Power Plant',        type:'utility', price:150, mortgage:75},
+  {id:13, name:'Sunview Boulevard',  type:'property', group:'pink',      price:140, rent:[10,50,150,450,625,750],  houseCost:100, mortgage:70},
+  {id:14, name:'River Walk',         type:'property', group:'pink',      price:160, rent:[12,60,180,500,700,900],  houseCost:100, mortgage:80},
+  {id:15, name:'East Line Station',  type:'railroad', price:200, mortgage:100},
+  {id:16, name:'Market Street',      type:'property', group:'orange',    price:180, rent:[14,70,200,550,750,950],  houseCost:100, mortgage:90},
+  {id:17, name:'Treasury',           type:'treasury'},
+  {id:18, name:'Festival Way',       type:'property', group:'orange',    price:180, rent:[14,70,200,550,750,950],  houseCost:100, mortgage:90},
+  {id:19, name:'Harbor Road',        type:'property', group:'orange',    price:200, rent:[16,80,220,600,800,1000], houseCost:100, mortgage:100},
+  {id:20, name:'Free Parking',       type:'free'},
+  {id:21, name:'Liberty Avenue',     type:'property', group:'red',       price:220, rent:[18,90,250,700,875,1050], houseCost:150, mortgage:110},
+  {id:22, name:'Fortune',            type:'fortune'},
+  {id:23, name:'Constitution Square',type:'property', group:'red',       price:220, rent:[18,90,250,700,875,1050], houseCost:150, mortgage:110},
+  {id:24, name:'Independence Way',   type:'property', group:'red',       price:240, rent:[20,100,300,750,925,1100],houseCost:150, mortgage:120},
+  {id:25, name:'South Line Station', type:'railroad', price:200, mortgage:100},
+  {id:26, name:'Galaxy Lane',        type:'property', group:'yellow',    price:260, rent:[22,110,330,800,975,1150],houseCost:150, mortgage:130},
+  {id:27, name:'Comet Court',        type:'property', group:'yellow',    price:260, rent:[22,110,330,800,975,1150],houseCost:150, mortgage:130},
+  {id:28, name:'Waterworks',         type:'utility', price:150, mortgage:75},
+  {id:29, name:'Star Plaza',         type:'property', group:'yellow',    price:280, rent:[24,120,360,850,1025,1200],houseCost:150, mortgage:140},
+  {id:30, name:'Go To Jail',         type:'gotojail'},
+  {id:31, name:'Royal Gardens',      type:'property', group:'green',     price:300, rent:[26,130,390,900,1100,1275],houseCost:200, mortgage:150},
+  {id:32, name:'Crown Court',        type:'property', group:'green',     price:300, rent:[26,130,390,900,1100,1275],houseCost:200, mortgage:150},
+  {id:33, name:'Treasury',           type:'treasury'},
+  {id:34, name:'Palace Row',         type:'property', group:'green',     price:320, rent:[28,150,450,1000,1200,1400],houseCost:200, mortgage:160},
+  {id:35, name:'West Line Station',  type:'railroad', price:200, mortgage:100},
+  {id:36, name:'Fortune',            type:'fortune'},
+  {id:37, name:'Summit Peak',        type:'property', group:'darkblue',  price:350, rent:[35,175,500,1100,1300,1500],houseCost:200, mortgage:175},
+  {id:38, name:'Luxury Levy',        type:'tax', amount:100},
+  {id:39, name:'Crestview Heights',  type:'property', group:'darkblue',  price:400, rent:[50,200,600,1400,1700,2000],houseCost:200, mortgage:200},
+];
+
+const FORTUNE_CARDS = [
+  {text:'Advance to Go. Collect $200.', effect:{type:'MOVE_TO', to:0}},
+  {text:'Advance to Crestview Heights.', effect:{type:'MOVE_TO', to:39, passGo:true}},
+  {text:'Advance to Birch Avenue.', effect:{type:'MOVE_TO', to:6, passGo:true}},
+  {text:'Advance to the nearest Transit Line. Pay double rent.', effect:{type:'NEAREST_RAILROAD', mult:2}},
+  {text:'Advance to the nearest Transit Line. Pay double rent.', effect:{type:'NEAREST_RAILROAD', mult:2}},
+  {text:'Advance to the nearest Utility. Pay 10x your dice roll if owned.', effect:{type:'NEAREST_UTILITY', mult:10}},
+  {text:'The bank pays you a dividend of $50.', effect:{type:'COLLECT', amount:50}},
+  {text:'Get out of jail free. Keep this card until needed.', effect:{type:'GET_OUT_OF_JAIL'}},
+  {text:'Go back 3 spaces.', effect:{type:'MOVE_RELATIVE', delta:-3}},
+  {text:'Go directly to jail. Do not collect $200.', effect:{type:'GOTO_JAIL'}},
+  {text:'Make general repairs: pay $25 per house and $100 per hotel you own.', effect:{type:'REPAIRS', perHouse:25, perHotel:100}},
+  {text:'You have won a crossword competition. Collect $100.', effect:{type:'COLLECT', amount:100}},
+  {text:'Pay a poor tax of $15.', effect:{type:'PAY', amount:15}},
+  {text:'Take a trip to Central Station.', effect:{type:'MOVE_TO', to:5, passGo:true}},
+  {text:'You have been elected chair of the board. Pay each player $50.', effect:{type:'PAY_EACH', amount:50}},
+  {text:'Your building loan matures. Collect $150.', effect:{type:'COLLECT', amount:150}},
+];
+
+const TREASURY_CARDS = [
+  {text:'Bank error in your favor. Collect $200.', effect:{type:'COLLECT', amount:200}},
+  {text:"Doctor's fees. Pay $50.", effect:{type:'PAY', amount:50}},
+  {text:'From the sale of stock you get $50.', effect:{type:'COLLECT', amount:50}},
+  {text:'Get out of jail free. Keep this card until needed.', effect:{type:'GET_OUT_OF_JAIL'}},
+  {text:'Go directly to jail. Do not collect $200.', effect:{type:'GOTO_JAIL'}},
+  {text:'Holiday fund matures. Collect $100.', effect:{type:'COLLECT', amount:100}},
+  {text:'Income tax refund. Collect $20.', effect:{type:'COLLECT', amount:20}},
+  {text:'It is your birthday. Collect $10 from every player.', effect:{type:'COLLECT_FROM_EACH', amount:10}},
+  {text:'Life insurance matures. Collect $100.', effect:{type:'COLLECT', amount:100}},
+  {text:'Pay hospital fees of $100.', effect:{type:'PAY', amount:100}},
+  {text:'Pay school fees of $50.', effect:{type:'PAY', amount:50}},
+  {text:'Receive $25 for services rendered.', effect:{type:'COLLECT', amount:25}},
+  {text:'You are assessed for street repairs: $40 per house and $115 per hotel you own.', effect:{type:'REPAIRS', perHouse:40, perHotel:115}},
+  {text:'You have won second prize in a beauty contest. Collect $10.', effect:{type:'COLLECT', amount:10}},
+  {text:'You inherit $100.', effect:{type:'COLLECT', amount:100}},
+  {text:'Advance to Go. Collect $200.', effect:{type:'MOVE_TO', to:0}},
+];
+
+const THEMES = [
+  {id:'felt',     label:'Felt Green',    swatches:['#1f4537','#cda349','#b2433c','#f4eedd']},
+  {id:'midnight', label:'Midnight',      swatches:['#161d36','#e8c14a','#d65d6b','#eef0fb']},
+  {id:'sunset',   label:'Sunset',        swatches:['#7a3b2e','#f3b54a','#3f7d6e','#fbf0e1']},
+  {id:'mint',     label:'Mint Studio',   swatches:['#1f3530','#7fd9b6','#e8866f','#f1f7ef']},
+];
+
+const PLAYER_COLORS = ['#cda349','#b2433c','#5d8fc4','#6fae6e','#9b6fc4','#e08a4f'];
+
+function defaultSettings(){
+  return {
+    startCash:1500,
+    freeParkingPot:false,
+    doubleRentFullSet:true,
+    evenBuild:true,
+    auctionOnDecline:true,
+    theme:'felt',
+  };
+}
+
+/* ============================================================================
+   UTILITIES
+   ============================================================================ */
+function fmtMoney(n){
+  const neg = n<0; n = Math.abs(Math.round(n));
+  return (neg?'-':'') + '$' + n.toLocaleString('en-US');
+}
+function uid(len=6){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s=''; for(let i=0;i<len;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+  return s;
+}
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function getGridPos(i){
+  if(i===0) return {row:11,col:11};
+  if(i>=1 && i<=9) return {row:11, col:11-i};
+  if(i===10) return {row:11,col:1};
+  if(i>=11 && i<=19) return {row:21-i, col:1};
+  if(i===20) return {row:1,col:1};
+  if(i>=21 && i<=29) return {row:1, col:i-19};
+  if(i===30) return {row:1,col:11};
+  if(i>=31 && i<=39) return {row:i-29, col:11};
+}
+
+/* ============================================================================
+   STORAGE
+   ============================================================================ */
+async function loadRoom(code){
+  try{
+    const res = await window.storage.get('room:'+code, true);
+    return res ? JSON.parse(res.value) : null;
+  }catch(e){ return null; }
+}
+async function saveRoom(code, state){
+  try{
+    await window.storage.set('room:'+code, JSON.stringify(state), true);
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ============================================================================
+   APP STATE
+   ============================================================================ */
+const app = {
+  screen:'home',          // home | lobby | game
+  roomCode:null,
+  me:{id:null, name:null},
+  room:null,              // synced room state
+  lastRev:-1,
+  pollTimer:null,
+  ui:{                    // transient local UI state (not synced)
+    setupTab:'rules',
+    homeTab:'create',
+    nameInput:'',
+    roomInput:'',
+    errorMsg:'',
+    modal:null,           // {type:'...', ...data}
+    rolling:false,
+    tradeDraft:null,
+  }
+};
+
+function render(){
+  const el = document.getElementById('app');
+  if(app.room && app.room.phase==='playing'){
+    if(app.room.turnPhase==='card'){ app.ui.modal = {type:'card'}; }
+    else if(app.room.turnPhase==='auction'){ app.ui.modal = {type:'auction'}; }
+    else if(app.ui.modal && (app.ui.modal.type==='card'||app.ui.modal.type==='auction')){ app.ui.modal = null; }
+  }
+  if(app.screen==='home') el.innerHTML = renderHome();
+  else if(app.screen==='lobby') el.innerHTML = renderLobby();
+  else if(app.screen==='game') el.innerHTML = renderGame();
+  document.body.dataset.theme = (app.room && app.room.settings) ? app.room.settings.theme : 'felt';
+  renderModal();
+  wireEvents();
+}
+
+function setError(msg){ app.ui.errorMsg = msg; render(); }
+
+/* ============================================================================
+   HOME SCREEN
+   ============================================================================ */
+function renderHome(){
+  const ui = app.ui;
+  return `
+  <div class="home-wrap">
+    <div class="home-card card">
+      <div class="home-hero">
+        <h1 class="display">Meridian</h1>
+        <p>A customizable property-trading game for up to 6 players — play together from any device.</p>
+      </div>
+      <label class="field" style="margin-bottom:14px;">
+        Your name
+        <input type="text" maxlength="16" value="${esc(ui.nameInput)}" placeholder="e.g. Sam" data-act="nameinput">
+      </label>
+      <div class="tabs">
+        <button class="tab ${ui.homeTab==='create'?'active':''}" data-act="hometab" data-tab="create">New game</button>
+        <button class="tab ${ui.homeTab==='join'?'active':''}" data-act="hometab" data-tab="join">Join game</button>
+      </div>
+      ${ui.homeTab==='create' ? `
+        <p class="muted" style="font-size:13px; margin-top:0;">You'll get a room code to share with friends — they can join from their own phone, tablet, or computer.</p>
+        <button class="btn btn-accent" data-act="create" style="width:100%;">Create room</button>
+      ` : `
+        <label class="field" style="margin-bottom:12px;">
+          Room code
+          <input type="text" maxlength="6" value="${esc(ui.roomInput)}" placeholder="e.g. AB3KQ9" style="text-transform:uppercase; letter-spacing:.2em; font-family:'JetBrains Mono',monospace;" data-act="roominput">
+        </label>
+        <button class="btn btn-accent" data-act="join" style="width:100%;">Join room</button>
+      `}
+      <p class="error-text">${esc(ui.errorMsg)}</p>
+    </div>
+  </div>`;
+}
+
+/* ============================================================================
+   SHARED TOPBAR
+   ============================================================================ */
+function renderTopbar(rightExtra){
+  return `
+  <div class="topbar">
+    <div class="brand">
+      <h1 class="display">Meridian</h1>
+      <span class="tagline">Property Trading</span>
+    </div>
+    <div class="topbar-right">
+      ${app.roomCode ? `<span class="room-pill">${esc(app.roomCode)}</span>` : ''}
+      ${rightExtra || ''}
+      <button class="btn btn-sm" data-act="leave">Leave</button>
+    </div>
+  </div>`;
+}
+
+/* ============================================================================
+   LOBBY SCREEN
+   ============================================================================ */
+function isHost(){
+  return app.room && app.room.hostId === app.me.id;
+}
+
+function renderLobby(){
+  const room = app.room;
+  if(!room) return renderHome();
+  const players = room.players;
+  return `
+  ${renderTopbar()}
+  <div class="lobby-grid">
+    <div class="card">
+      <h2 class="section-title">Players (${players.length}/6)</h2>
+      ${players.map(p=>`
+        <div class="player-chip">
+          <div class="token" style="background:${p.color}">${esc(initials(p.name))}</div>
+          <div class="pname">${esc(p.name)}</div>
+          <div class="ptag">${p.id===room.hostId ? 'Host' : ''} ${p.id===app.me.id ? '· You' : ''}</div>
+        </div>`).join('')}
+      <hr class="sep">
+      <p class="muted" style="font-size:13px;">Share room code <b class="mono" style="color:var(--accent)">${esc(app.roomCode)}</b> with friends — they can join from any device.</p>
+      ${isHost() ? `
+        <button class="btn btn-accent" data-act="startgame" style="width:100%;" ${players.length<2?'disabled':''}>
+          ${players.length<2 ? 'Need at least 2 players' : 'Start game'}
+        </button>
+      ` : `<p class="muted center" style="font-size:13px;">Waiting for the host to start the game…</p>`}
+    </div>
+    <div class="card">
+      ${isHost() ? renderSetupPanel() : renderSetupReadOnly()}
+    </div>
+  </div>`;
+}
+
+function initials(name){
+  return (name||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase() || '?';
+}
+
+function renderSetupPanel(){
+  const tab = app.ui.setupTab;
+  return `
+  <h2 class="section-title">Game setup</h2>
+  <div class="setup-tabs">
+    <button class="setup-tab ${tab==='rules'?'active':''}" data-act="setuptab" data-tab="rules">House Rules</button>
+    <button class="setup-tab ${tab==='board'?'active':''}" data-act="setuptab" data-tab="board">Board &amp; Properties</button>
+    <button class="setup-tab ${tab==='theme'?'active':''}" data-act="setuptab" data-tab="theme">Theme</button>
+  </div>
+  ${tab==='rules' ? renderRulesTab() : tab==='board' ? renderBoardTab() : renderThemeTab()}
+  `;
+}
+
+function renderSetupReadOnly(){
+  const s = app.room.settings;
+  const themeLabel = (THEMES.find(t=>t.id===s.theme)||{}).label || s.theme;
+  return `
+  <h2 class="section-title">Game setup</h2>
+  <p class="muted" style="font-size:13px;">The host is configuring the board, house rules, and theme. Here's the current setup:</p>
+  <ul style="font-size:13.5px; line-height:1.9; padding-left:18px;">
+    <li>Starting cash: <b>${fmtMoney(s.startCash)}</b></li>
+    <li>Free Parking jackpot: <b>${s.freeParkingPot?'On':'Off'}</b></li>
+    <li>Double rent on full color sets: <b>${s.doubleRentFullSet?'On':'Off'}</b></li>
+    <li>Even house-building rule: <b>${s.evenBuild?'On':'Off'}</b></li>
+    <li>Auction unbought properties: <b>${s.auctionOnDecline?'On':'Off'}</b></li>
+    <li>Theme: <b>${themeLabel}</b></li>
+  </ul>`;
+}
+
+function renderRulesTab(){
+  const s = app.room.settings;
+  return `
+  <label class="field" style="max-width:200px; margin-bottom:10px;">
+    Starting cash
+    <input type="number" min="500" max="5000" step="50" value="${s.startCash}" data-act="setting" data-key="startCash" data-kind="number">
+  </label>
+  <div class="checkrow">
+    <input type="checkbox" id="cb1" ${s.freeParkingPot?'checked':''} data-act="setting" data-key="freeParkingPot" data-kind="bool">
+    <label for="cb1">Free Parking jackpot — taxes &amp; fees collect here, winner takes the pot</label>
+  </div>
+  <div class="checkrow">
+    <input type="checkbox" id="cb2" ${s.doubleRentFullSet?'checked':''} data-act="setting" data-key="doubleRentFullSet" data-kind="bool">
+    <label for="cb2">Double rent on unimproved monopolies (own a full color set)</label>
+  </div>
+  <div class="checkrow">
+    <input type="checkbox" id="cb3" ${s.evenBuild?'checked':''} data-act="setting" data-key="evenBuild" data-kind="bool">
+    <label for="cb3">Even building rule — houses must be built evenly across a set</label>
+  </div>
+  <div class="checkrow">
+    <input type="checkbox" id="cb4" ${s.auctionOnDecline?'checked':''} data-act="setting" data-key="auctionOnDecline" data-kind="bool">
+    <label for="cb4">Auction a property to everyone if the player who lands on it declines to buy</label>
+  </div>
+  `;
+}
+
+function renderBoardTab(){
+  const draft = app.room.boardDraft;
+  return `
+  <p class="muted" style="font-size:12.5px; margin-top:0;">Rename any space. Editing a property's price automatically rescales its rent, mortgage, and house cost.</p>
+  <div class="scroll-x">
+  <table class="board-edit-table">
+    <thead><tr><th>#</th><th>Group</th><th>Name</th><th>Price / Tax</th></tr></thead>
+    <tbody>
+    ${draft.map(d=>{
+      const def = DEFAULT_BOARD[d.id];
+      const swatch = GROUP_COLORS[def.group||def.type]||'transparent';
+      let priceCell = '<span class="muted">—</span>';
+      if(def.type==='property'||def.type==='railroad'||def.type==='utility'){
+        priceCell = `<input type="number" min="20" max="2000" step="10" value="${d.price}" data-act="boarddraft" data-id="${d.id}" data-field="price">`;
+      } else if(def.type==='tax'){
+        priceCell = `<input type="number" min="10" max="500" step="10" value="${d.amount}" data-act="boarddraft" data-id="${d.id}" data-field="amount">`;
+      }
+      const groupLabel = GROUP_LABELS[def.group||def.type]||'';
+      return `<tr>
+        <td class="mono muted">${d.id}</td>
+        <td>${(def.group||def.type==='railroad'||def.type==='utility') ? `<span class="group-swatch" style="background:${swatch}"></span>${groupLabel}` : '<span class="muted">—</span>'}</td>
+        <td><input type="text" maxlength="22" value="${esc(d.name)}" data-act="boarddraft" data-id="${d.id}" data-field="name"></td>
+        <td>${priceCell}</td>
+      </tr>`;
+    }).join('')}
+    </tbody>
+  </table>
+  </div>`;
+}
+
+function renderThemeTab(){
+  const cur = app.room.settings.theme;
+  return `
+  <p class="muted" style="font-size:12.5px; margin-top:0;">Pick a look for the table. Everyone sees the same theme.</p>
+  <div class="theme-grid">
+    ${THEMES.map(t=>`
+      <div class="theme-opt ${cur===t.id?'active':''}" data-act="theme" data-id="${t.id}">
+        <div class="theme-swatches">${t.swatches.map(c=>`<span class="swatch" style="background:${c}"></span>`).join('')}</div>
+        ${t.label}
+      </div>`).join('')}
+  </div>`;
+}
+
+/* ============================================================================
+   ROOM LIFECYCLE: CREATE / JOIN / START
+   ============================================================================ */
+function buildFinalSpaces(boardDraft){
+  const round2 = n => Math.max(2, Math.round(n/2)*2);
+  return DEFAULT_BOARD.map(def=>{
+    const draft = boardDraft[def.id];
+    const space = {id:def.id, name:draft.name, type:def.type};
+    if(def.group) space.group = def.group;
+    if(def.type==='property'){
+      const ratio = draft.price / def.price;
+      space.price = draft.price;
+      space.rent = def.rent.map(r=>round2(r*ratio));
+      space.houseCost = round2(def.houseCost*ratio);
+      space.mortgage = round2(draft.price/2);
+      space.owner = null; space.mortgaged = false; space.houses = 0;
+    } else if(def.type==='railroad'){
+      const ratio = draft.price / def.price;
+      space.price = draft.price;
+      space.rentTable = [25,50,100,200].map(r=>round2(r*ratio));
+      space.mortgage = round2(draft.price/2);
+      space.owner = null; space.mortgaged = false;
+    } else if(def.type==='utility'){
+      space.price = draft.price;
+      space.mortgage = round2(draft.price/2);
+      space.owner = null; space.mortgaged = false;
+    } else if(def.type==='tax'){
+      space.amount = draft.amount;
+    }
+    return space;
+  });
+}
+
+async function createRoom(){
+  const name = app.ui.nameInput.trim();
+  if(!name){ setError('Enter your name first.'); return; }
+  const code = uid(5);
+  const meId = uid(8);
+  app.me = {id:meId, name};
+  const boardDraft = DEFAULT_BOARD.map(s=>({id:s.id, name:s.name, price:s.price, amount:s.amount}));
+  const room = {
+    rev:0, phase:'lobby', hostId:meId,
+    players:[{id:meId, name, color:PLAYER_COLORS[0]}],
+    settings: defaultSettings(),
+    boardDraft,
+  };
+  const ok = await saveRoom(code, room);
+  if(!ok){ setError('Could not create a room right now. Try again.'); return; }
+  app.roomCode = code; app.room = room; app.lastRev = 0; app.screen = 'lobby';
+  app.ui.errorMsg = '';
+  location.hash = code+':'+meId+':'+encodeURIComponent(name);
+  startPolling(); render();
+}
+
+async function joinRoom(){
+  const name = app.ui.nameInput.trim();
+  const code = app.ui.roomInput.trim().toUpperCase();
+  if(!name){ setError('Enter your name first.'); return; }
+  if(!code){ setError('Enter a room code.'); return; }
+  const room = await loadRoom(code);
+  if(!room){ setError('Room not found. Double-check the code.'); return; }
+  if(room.phase !== 'lobby'){ setError('That game has already started.'); return; }
+  if(room.players.length >= 6){ setError('That room is full (6 players).'); return; }
+  const meId = uid(8);
+  app.me = {id:meId, name};
+  room.players.push({id:meId, name, color:PLAYER_COLORS[room.players.length]});
+  room.rev = (room.rev||0)+1;
+  const ok = await saveRoom(code, room);
+  if(!ok){ setError('Could not join right now. Try again.'); return; }
+  app.roomCode = code; app.room = room; app.lastRev = room.rev; app.screen = 'lobby';
+  app.ui.errorMsg = '';
+  location.hash = code+':'+meId+':'+encodeURIComponent(name);
+  startPolling(); render();
+}
+
+async function startGame(){
+  if(!isHost()) return;
+  const room = app.room;
+  room.spaces = buildFinalSpaces(room.boardDraft);
+  room.players.forEach(p=>{
+    p.cash = room.settings.startCash;
+    p.position = 0;
+    p.properties = [];
+    p.inJail = false;
+    p.jailTurns = 0;
+    p.jailCards = 0;
+    p.bankrupt = false;
+  });
+  room.currentPlayerIndex = 0;
+  room.dice = null;
+  room.turnPhase = 'rolling';
+  room.doublesCount = 0;
+  room.freeParkingPot = 0;
+  room.fortuneDeck = shuffle([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+  room.fortuneIndex = 0;
+  room.treasuryDeck = shuffle([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
+  room.treasuryIndex = 0;
+  room.log = ['Game on! ' + room.players[0].name + ' rolls first.'];
+  room.phase = 'playing';
+  room.pendingAction = null;
+  room.trade = null;
+  room.winnerId = null;
+  room.rev = (room.rev||0)+1;
+  await saveRoom(app.roomCode, room);
+  app.lastRev = room.rev;
+  app.screen = 'game';
+  render();
+}
+
+function leaveRoom(){
+  stopPolling();
+  app.screen = 'home'; app.roomCode = null; app.room = null; app.lastRev = -1;
+  app.me = {id:null, name: app.me.name};
+  location.hash = '';
+  render();
+}
+
+/* ============================================================================
+   POLLING (near-real-time sync)
+   ============================================================================ */
+function startPolling(){
+  stopPolling();
+  app.pollTimer = setInterval(pollRoom, 2500);
+}
+function stopPolling(){
+  if(app.pollTimer){ clearInterval(app.pollTimer); app.pollTimer = null; }
+}
+async function pollRoom(){
+  if(!app.roomCode) return;
+  const remote = await loadRoom(app.roomCode);
+  if(!remote) return;
+  if(remote.rev !== app.lastRev){
+    app.room = remote;
+    app.lastRev = remote.rev;
+    const a = document.activeElement;
+    const typing = a && (a.tagName==='INPUT'||a.tagName==='SELECT'||a.tagName==='TEXTAREA');
+    if(!typing) render();
+  }
+}
+
+/* ============================================================================
+   SAVE HELPERS
+   ============================================================================ */
+const _debounceTimers = {};
+function commitRoom(){
+  app.room.rev = (app.room.rev||0)+1;
+  app.lastRev = app.room.rev;
+  saveRoom(app.roomCode, app.room);
+}
+function debounceSave(key, delay=500){
+  if(_debounceTimers[key]) clearTimeout(_debounceTimers[key]);
+  _debounceTimers[key] = setTimeout(commitRoom, delay);
+}
+
+/* ============================================================================
+   MODAL SCAFFOLD
+   ============================================================================ */
+function openModal(type, data){ app.ui.modal = Object.assign({type}, data||{}); render(); }
+function closeModal(){ app.ui.modal = null; render(); }
+
+function renderModal(){
+  const m = app.ui.modal;
+  if(!m) return;
+  let content = '';
+  switch(m.type){
+    case 'card': {
+      const room = app.room;
+      const deck = room.cardShown.deck;
+      content = `<div class="modal center">
+        <p class="modal-sub">${deck==='fortune'?'Fortune':'Treasury'} card</p>
+        <h3 style="font-size:18px;">${esc(room.cardShown.text)}</h3>
+        <div class="btn-row" style="justify-content:center; margin-top:16px;">
+          ${isMyTurn() ? `<button class="btn btn-accent" data-act="ackcard">OK</button>` : `<p class="muted">Waiting for ${esc(currentPlayer().name)}…</p>`}
+        </div>
+      </div>`;
+      break;
+    }
+    case 'auction': {
+      const room = app.room;
+      const a = room.auction;
+      const sp = room.spaces[a.spaceId];
+      const bidder = room.players.find(p=>p.id===a.order[a.idx]);
+      const myTurn = bidder.id===app.me.id;
+      const minBid = a.highBid + 10;
+      content = `<div class="modal">
+        <p class="modal-sub">Auction</p>
+        ${renderTitleDeed(sp)}
+        <p>Current bid: <b>${fmtMoney(a.highBid)}</b>${a.highBidder?(' by '+esc(ownerName(a.highBidder))):''}</p>
+        ${myTurn ? `
+          <div class="btn-row">
+            <button class="btn btn-accent" data-act="auctionbid" data-amount="${minBid}" ${minBid>bidder.cash?'disabled':''}>Bid ${fmtMoney(minBid)}</button>
+            <button class="btn btn-accent" data-act="auctionbid" data-amount="${a.highBid+50}" ${(a.highBid+50)>bidder.cash?'disabled':''}>Bid ${fmtMoney(a.highBid+50)}</button>
+            <button class="btn btn-danger" data-act="auctionpass">Pass</button>
+          </div>
+        ` : `<p class="muted">Waiting for ${esc(bidder.name)} to bid or pass…</p>`}
+      </div>`;
+      break;
+    }
+    case 'properties': {
+      content = renderPropertiesModal();
+      break;
+    }
+    case 'deed': {
+      const room = app.room;
+      const sp = room.spaces[m.spaceId];
+      const owner = sp.owner ? room.players.find(p=>p.id===sp.owner) : null;
+      content = `<div class="modal">
+        <p class="modal-sub">${sp.group ? GROUP_LABELS[sp.group] : (sp.type==='railroad'?'Transit':'Utility')}</p>
+        ${renderTitleDeed(sp)}
+        <p>${owner ? `Owned by <b>${esc(owner.name)}</b>${sp.mortgaged?' <span class="badge badge-bad">Mortgaged</span>':''}` : '<span class="muted">Not yet owned.</span>'}</p>
+        <div style="text-align:right;"><button class="btn" data-act="closemodal">Close</button></div>
+      </div>`;
+      break;
+    }
+    case 'trade': {
+      content = renderTradeModal();
+      break;
+    }
+    default: content = '';
+  }
+  if(!content) return;
+  document.getElementById('app').insertAdjacentHTML('beforeend',
+    '<div class="modal-overlay" data-act="modalbg">'+content+'</div>');
+}
+
+/* ============================================================================
+   EVENT WIRING & DISPATCH
+   ============================================================================ */
+function wireEvents(){
+  document.querySelectorAll('[data-act]').forEach(el=>{
+    const tag = el.tagName;
+    if(tag==='INPUT' || tag==='SELECT' || tag==='TEXTAREA'){
+      const evt = (el.type==='checkbox') ? 'change' : 'input';
+      el.addEventListener(evt, ()=> handleAction(el.dataset, el));
+    } else {
+      el.addEventListener('click', (e)=> handleAction(el.dataset, el, e));
+    }
+  });
+}
+
+function handleAction(ds, el, e){
+  switch(ds.act){
+    case 'hometab': app.ui.homeTab = ds.tab; render(); break;
+    case 'nameinput': app.ui.nameInput = el.value; break;
+    case 'roominput': app.ui.roomInput = el.value.toUpperCase(); el.value = app.ui.roomInput; break;
+    case 'create': createRoom(); break;
+    case 'join': joinRoom(); break;
+    case 'leave': leaveRoom(); break;
+    case 'setuptab': app.ui.setupTab = ds.tab; render(); break;
+    case 'setting': {
+      const key = ds.key;
+      if(ds.kind==='bool'){ app.room.settings[key] = el.checked; commitRoom(); }
+      else { app.room.settings[key] = Number(el.value); debounceSave('setting_'+key); }
+      break;
+    }
+    case 'boarddraft': {
+      const id = Number(ds.id), field = ds.field;
+      app.room.boardDraft[id][field] = (field==='name') ? el.value : Number(el.value);
+      debounceSave('board_'+id+'_'+field);
+      break;
+    }
+    case 'theme': {
+      app.room.settings.theme = ds.id;
+      document.body.dataset.theme = ds.id;
+      commitRoom(); render();
+      break;
+    }
+    case 'startgame': startGame(); break;
+    case 'modalbg': if(e && e.target===el) closeModal(); break;
+    case 'closemodal': closeModal(); break;
+    case 'roll': {
+      if(!isMyTurn()) break;
+      app.ui.rolling = true; render();
+      setTimeout(()=>{ app.ui.rolling=false; rollDice(); }, 450);
+      break;
+    }
+    case 'paybail': payBail(); break;
+    case 'usejailcard': useJailCard(); break;
+    case 'endturn': endTurn(); break;
+    case 'openprops': openModal('properties'); break;
+    case 'ackcard': if(isMyTurn()) applyCardEffect(); break;
+    case 'newgame': resetToLobby(); break;
+    case 'paydebt': payOffDebt(); break;
+    case 'declarebankrupt': closeModal(); declareBankruptcy(); break;
+    case 'buyprop': buyProperty(); break;
+    case 'declineprop': declineProperty(); break;
+    case 'auctionbid': auctionBid(Number(ds.amount)); break;
+    case 'auctionpass': auctionPass(); break;
+    case 'buildhouse': buildHouse(Number(ds.id)); break;
+    case 'sellhouse': sellHouse(Number(ds.id)); break;
+    case 'mortgage': mortgageProperty(Number(ds.id)); break;
+    case 'unmortgage': unmortgageProperty(Number(ds.id)); break;
+    case 'cell': {
+      const id = Number(ds.id);
+      const sp = app.room.spaces[id];
+      if(sp.type==='property'||sp.type==='railroad'||sp.type==='utility') openModal('deed',{spaceId:id});
+      break;
+    }
+    case 'opentrade': {
+      const room = app.room;
+      const others = room.players.filter(p=>!p.bankrupt && p.id!==app.me.id);
+      if(others.length===0) break;
+      app.ui.tradeDraft = {toId:others[0].id, offerCash:0, offerProps:[], offerJail:0, requestCash:0, requestProps:[], requestJail:0};
+      openModal('trade');
+      break;
+    }
+    case 'tradeto':
+      app.ui.tradeDraft.toId = el.value;
+      app.ui.tradeDraft.requestProps = []; app.ui.tradeDraft.requestCash = 0; app.ui.tradeDraft.requestJail = 0;
+      render();
+      break;
+    case 'tradecash':
+      app.ui.tradeDraft[ds.side==='offer'?'offerCash':'requestCash'] = Number(el.value);
+      break;
+    case 'tradejail':
+      app.ui.tradeDraft[ds.side==='offer'?'offerJail':'requestJail'] = Number(el.value);
+      break;
+    case 'tradeprop': {
+      const arr = app.ui.tradeDraft[ds.side==='offer'?'offerProps':'requestProps'];
+      const id = Number(ds.id);
+      const idx = arr.indexOf(id);
+      if(el.checked && idx===-1) arr.push(id);
+      else if(!el.checked && idx>-1) arr.splice(idx,1);
+      break;
+    }
+    case 'sendtrade': proposeTrade(); break;
+    case 'accepttrade': acceptTrade(); break;
+    case 'declinetrade': declineTrade(); break;
+    case 'canceltrade': cancelTrade(); break;
+    default: break;
+  }
+}
+
+/* ============================================================================
+   INIT / REJOIN
+   ============================================================================ */
+function init(){
+  const hash = location.hash.replace('#','');
+  const parts = hash.split(':');
+  if(parts.length>=3 && parts[0]){
+    const code = parts[0], pid = parts[1], name = decodeURIComponent(parts.slice(2).join(':'));
+    app.ui.nameInput = name;
+    (async ()=>{
+      const room = await loadRoom(code);
+      if(room && room.players.some(p=>p.id===pid)){
+        app.me = {id:pid, name};
+        app.roomCode = code; app.room = room; app.lastRev = room.rev;
+        app.screen = (room.phase==='lobby') ? 'lobby' : 'game';
+        startPolling();
+      }
+      render();
+    })();
+    return;
+  }
+  render();
+}
+init();
+
+/* ============================================================================
+   GAME HELPERS
+   ============================================================================ */
+function currentPlayer(){ return app.room.players[app.room.currentPlayerIndex]; }
+function myPlayer(){ return app.room.players.find(p=>p.id===app.me.id); }
+function isMyTurn(){ return app.room && currentPlayer().id===app.me.id; }
+function ownerName(id){ return (app.room.players.find(p=>p.id===id)||{}).name||'?'; }
+function pushLog(msg){
+  const room = app.room;
+  room.log = room.log||[];
+  room.log.push(msg);
+  if(room.log.length>60) room.log = room.log.slice(-60);
+}
+
+/* ============================================================================
+   GAME SCREEN
+   ============================================================================ */
+function renderGame(){
+  const room = app.room;
+  if(!room || !room.spaces) return renderLobby();
+  const me = myPlayer();
+  return `
+  ${renderTopbar(me?`<span class="badge badge-muted mono">${fmtMoney(me.cash)}</span>`:'')}
+  <div class="game-grid">
+    <div class="board-wrap">${renderBoard()}</div>
+    <div class="sidebar">
+      ${renderPlayersList()}
+      ${renderActionPanel()}
+      ${renderLogPanel()}
+    </div>
+  </div>`;
+}
+
+function renderBoard(){
+  const room = app.room;
+  const cells = room.spaces.map(sp=>{
+    const pos = getGridPos(sp.id);
+    let sideClass = '';
+    if(sp.id>=11 && sp.id<=19) sideClass='side-left';
+    else if(sp.id>=31 && sp.id<=39) sideClass='side-right';
+    const isCorner = (sp.id===0||sp.id===10||sp.id===20||sp.id===30);
+    const groupColor = sp.group ? GROUP_COLORS[sp.group] : ((sp.type==='railroad'||sp.type==='utility') ? GROUP_COLORS[sp.type] : null);
+    const owner = sp.owner ? room.players.find(p=>p.id===sp.owner) : null;
+    const playersHere = room.players.filter(p=>!p.bankrupt && p.position===sp.id);
+    let priceLabel = '';
+    if(sp.type==='property'||sp.type==='railroad'||sp.type==='utility') priceLabel = fmtMoney(sp.price);
+    else if(sp.type==='tax') priceLabel = '-'+fmtMoney(sp.amount);
+    let houses = '';
+    if(sp.type==='property' && sp.houses>0){
+      if(sp.houses===5) houses = '<div class="houses"><div class="hotel-icon" title="Hotel"></div></div>';
+      else houses = '<div class="houses">'+Array.from({length:sp.houses}).map(()=>'<div class="house-icon"></div>').join('')+'</div>';
+    }
+    const tokens = playersHere.length ? `<div class="tokens">${playersHere.map(p=>`<div class="mini-token" style="background:${p.color}">${esc(initials(p.name))}</div>`).join('')}</div>` : '';
+    const classes = ['cell', isCorner?'corner':sideClass, owner?'owned':'', sp.mortgaged?'mortgaged':''].filter(Boolean).join(' ');
+    const style = `grid-row:${pos.row}; grid-column:${pos.col};` + (owner?` --owner-color:${owner.color};`:'');
+    return `<div class="${classes}" style="${style}" data-act="cell" data-id="${sp.id}">
+      ${groupColor?`<div class="band" style="background:${groupColor}"></div>`:''}
+      <div class="label">${esc(sp.name)}</div>
+      ${priceLabel?`<div class="price">${priceLabel}</div>`:''}
+      ${houses}
+      ${tokens}
+    </div>`;
+  }).join('');
+  return `<div class="board">${cells}${renderCenterArea()}</div>`;
+}
+
+function renderCenterArea(){
+  const room = app.room;
+  const cur = currentPlayer();
+  const dice = room.dice;
+  const rolling = app.ui.rolling;
+  let banner;
+  if(room.phase==='ended'){
+    const w = room.players.find(p=>p.id===room.winnerId);
+    banner = `<span class="pname-inline">${esc(w?w.name:'?')}</span> wins!`;
+  } else if(cur.inJail){
+    banner = `<span class="pname-inline">${esc(cur.name)}</span> is in jail`;
+  } else {
+    banner = `<span class="pname-inline">${esc(cur.name)}</span>'s turn`;
+  }
+  return `<div class="center-area">
+    <h2 class="display">Meridian</h2>
+    <div class="turn-banner">${banner}</div>
+    <div class="dice-row">
+      <div class="die ${rolling?'rolling':''}">${dice&&!rolling?dice[0]:(rolling?'?':'–')}</div>
+      <div class="die ${rolling?'rolling':''}">${dice&&!rolling?dice[1]:(rolling?'?':'–')}</div>
+    </div>
+    ${room.freeParkingPot>0 ? `<div class="badge badge-good">Free Parking pot: ${fmtMoney(room.freeParkingPot)}</div>` : ''}
+  </div>`;
+}
+
+function renderPlayersList(){
+  const room = app.room;
+  return `<div class="card players-list">
+    <h2 class="section-title">Players</h2>
+    ${room.players.map((p,i)=>{
+      const propCount = (p.properties||[]).length;
+      let meta;
+      if(p.bankrupt) meta = 'Bankrupt';
+      else if(p.inJail) meta = 'In jail · '+propCount+' properties';
+      else meta = propCount+' properties';
+      return `<div class="player-row ${i===room.currentPlayerIndex?'current':''} ${p.bankrupt?'bankrupt':''}">
+        <div class="token" style="background:${p.color}">${esc(initials(p.name))}</div>
+        <div>
+          <div class="pname">${esc(p.name)}${p.id===app.me.id?' (you)':''}</div>
+          <div class="pmeta">${meta}</div>
+        </div>
+        <div class="pcash">${fmtMoney(p.cash)}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderLogPanel(){
+  const log = app.room.log||[];
+  return `<div class="card log-panel">
+    ${log.slice(-40).map(l=>`<div class="log-entry">${esc(l)}</div>`).join('')}
+  </div>`;
+}
+
+function renderActionPanel(){
+  const room = app.room;
+  if(room.phase==='ended') return renderGameOver();
+  const cur = currentPlayer();
+  const mine = isMyTurn();
+  let html = '<div class="card action-panel"><h2 class="section-title">Action</h2>';
+  if(!mine){
+    if(room.turnPhase==='card'){
+      html += `<p class="muted" style="margin-top:0;">${esc(cur.name)} drew a card…</p>`;
+    } else if(room.turnPhase==='auction'){
+      html += `<p class="muted" style="margin-top:0;">Auction in progress — see popup.</p>`;
+    } else {
+      html += `<p class="muted" style="margin-top:0;">Waiting for <b>${esc(cur.name)}</b>…</p>`;
+    }
+  } else {
+    switch(room.turnPhase){
+      case 'rolling':
+        html += `<button class="btn btn-accent" data-act="roll">Roll dice</button>`;
+        break;
+      case 'jail_decision':
+        html += `<p class="muted" style="margin-top:0;">You're in jail (attempt ${cur.jailTurns+1} of 3).</p>`;
+        html += `<button class="btn btn-accent" data-act="roll">Roll for doubles</button>`;
+        html += `<button class="btn" data-act="paybail">Pay $50 bail</button>`;
+        if(cur.jailCards>0) html += `<button class="btn" data-act="usejailcard">Use Get Out of Jail Free</button>`;
+        break;
+      case 'buy_decision':
+        html += renderBuyDecision();
+        break;
+      case 'auction':
+        html += `<p class="muted" style="margin-top:0;">Auction in progress — see popup.</p>`;
+        break;
+      case 'card':
+        html += `<p class="muted" style="margin-top:0;">Card drawn — see popup.</p>`;
+        break;
+      case 'post_roll':
+        html += `<button class="btn" data-act="openprops">Manage properties</button>`;
+        if((room.doublesCount||0)>0) html += `<button class="btn btn-accent" data-act="roll">Roll again (doubles!)</button>`;
+        else html += `<button class="btn btn-accent" data-act="endturn">End turn</button>`;
+        break;
+      case 'bankrupt_check':
+        html += renderBankruptCheck();
+        break;
+      default:
+        html += `<p class="muted" style="margin-top:0;">…</p>`;
+    }
+  }
+  html += renderTradeSection();
+  html += '</div>';
+  return html;
+}
+
+function renderGameOver(){
+  const room = app.room;
+  const winner = room.players.find(p=>p.id===room.winnerId);
+  return `<div class="card action-panel center">
+    <h2 class="section-title">Game over</h2>
+    <p style="font-size:18px; font-weight:700; margin:6px 0 14px;">${winner?esc(winner.name)+' wins! 🏆':'Game over.'}</p>
+    ${isHost() ? `<button class="btn btn-accent" data-act="newgame" style="width:100%;">Play again</button>` : `<p class="muted">Waiting for host to start a new game…</p>`}
+  </div>`;
+}
+
+/* ============================================================================
+   TURN LOOP: ROLL, MOVE, LAND
+   ============================================================================ */
+function rollDice(){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  const p = currentPlayer();
+  const d1 = 1+Math.floor(Math.random()*6), d2 = 1+Math.floor(Math.random()*6);
+  room.dice = [d1,d2];
+  const isDouble = (d1===d2);
+
+  if(p.inJail){
+    if(isDouble){
+      p.inJail=false; p.jailTurns=0;
+      pushLog(p.name+' rolled doubles and got out of jail!');
+      movePlayerAndResolve(p, d1+d2);
+      return;
+    } else {
+      p.jailTurns = (p.jailTurns||0)+1;
+      if(p.jailTurns>=3){
+        pushLog(p.name+' rolled '+d1+'-'+d2+' — third attempt failed, paying $50 to leave jail.');
+        p.inJail=false; p.jailTurns=0;
+        payAmount(p, 50, 'bank', 'paid $50 to leave jail', 'jail_move');
+        return;
+      } else {
+        pushLog(p.name+' rolled '+d1+'-'+d2+' and stays in jail ('+p.jailTurns+'/3).');
+        room.turnPhase='post_roll';
+        commitRoom(); render();
+        return;
+      }
+    }
+  }
+
+  if(isDouble){
+    room.doublesCount = (room.doublesCount||0)+1;
+    if(room.doublesCount>=3){
+      pushLog(p.name+' rolled doubles three times in a row — straight to jail!');
+      sendToJail(p);
+      room.doublesCount = 0;
+      room.turnPhase='post_roll';
+      commitRoom(); render();
+      return;
+    }
+  } else {
+    room.doublesCount = 0;
+  }
+  movePlayerAndResolve(p, d1+d2);
+}
+
+function movePlayerAndResolve(p, steps){
+  const room = app.room;
+  const oldPos = p.position;
+  const passedGo = (oldPos+steps) >= 40;
+  const newPos = (oldPos+steps) % 40;
+  if(passedGo){ p.cash += 200; pushLog(p.name+' passed Go and collected $200.'); }
+  p.position = newPos;
+  resolveLanding(p, newPos);
+}
+function movePlayerTo(p, dest){
+  const room = app.room;
+  const oldPos = p.position;
+  if(dest <= oldPos){ p.cash += 200; pushLog(p.name+' passed Go and collected $200.'); }
+  p.position = dest;
+  resolveLanding(p, dest);
+}
+function movePlayerRelative(p, delta){
+  const room = app.room;
+  const dest = (p.position + delta + 40) % 40;
+  p.position = dest;
+  resolveLanding(p, dest);
+}
+function nearestAhead(pos, ids){
+  const sorted = ids.slice().sort((a,b)=>a-b);
+  for(const id of sorted) if(id>pos) return id;
+  return sorted[0];
+}
+
+function resolveLanding(p, pos){
+  const room = app.room;
+  const sp = room.spaces[pos];
+  pushLog(p.name+' landed on '+sp.name+'.');
+  switch(sp.type){
+    case 'go': case 'free': case 'jail':
+      finishLandingNoAction();
+      break;
+    case 'gotojail':
+      sendToJail(p);
+      room.doublesCount = 0;
+      finishLandingNoAction();
+      break;
+    case 'tax':
+      payAmount(p, sp.amount, 'bank', 'paid '+fmtMoney(sp.amount)+' '+sp.name, 'finish');
+      break;
+    case 'fortune':
+      drawCard('fortune', p);
+      break;
+    case 'treasury':
+      drawCard('treasury', p);
+      break;
+    case 'property': case 'railroad': case 'utility':
+      if(sp.owner===null){
+        room.turnPhase='buy_decision';
+        room.pendingAction = {spaceId:pos};
+        commitRoom(); render();
+      } else if(sp.owner===p.id || sp.mortgaged){
+        finishLandingNoAction();
+      } else {
+        const rent = calcRent(sp, room.players.find(pl=>pl.id===sp.owner));
+        payAmount(p, rent, sp.owner, 'paid '+fmtMoney(rent)+' rent to '+ownerName(sp.owner)+' for '+sp.name, 'finish');
+      }
+      break;
+    default:
+      finishLandingNoAction();
+  }
+}
+function finishLandingNoAction(){
+  app.room.turnPhase='post_roll';
+  commitRoom(); render();
+}
+function sendToJail(p){
+  p.position = 10;
+  p.inJail = true;
+  p.jailTurns = 0;
+  pushLog(p.name+' was sent to jail.');
+}
+
+/* ============================================================================
+   RENT CALCULATION
+   ============================================================================ */
+function calcRent(sp, owner){
+  const room = app.room;
+  if(sp.type==='property'){
+    if(sp.houses>0) return sp.rent[sp.houses];
+    const groupSpaces = room.spaces.filter(s=>s.group===sp.group);
+    const ownsAll = groupSpaces.every(s=>s.owner===owner.id);
+    if(ownsAll && room.settings.doubleRentFullSet) return sp.rent[0]*2;
+    return sp.rent[0];
+  }
+  if(sp.type==='railroad'){
+    const count = room.spaces.filter(s=>s.type==='railroad' && s.owner===owner.id).length;
+    return sp.rentTable[Math.max(0,count-1)];
+  }
+  if(sp.type==='utility'){
+    const count = room.spaces.filter(s=>s.type==='utility' && s.owner===owner.id).length;
+    const mult = count>=2 ? 10 : 4;
+    const roll = room.dice ? (room.dice[0]+room.dice[1]) : 7;
+    return roll*mult;
+  }
+  return 0;
+}
+
+/* ============================================================================
+   PAYMENTS, DEBT & CARDS
+   ============================================================================ */
+function creditAmount(amount, payeeId, payerId, extra){
+  const room = app.room;
+  if(payeeId==='bank'){
+    if(room.settings.freeParkingPot) room.freeParkingPot += amount;
+  } else if(payeeId==='multi'){
+    const each = (extra && extra.payEachAmount) || 0;
+    room.players.forEach(pl=>{ if(!pl.bankrupt && pl.id!==payerId) pl.cash += each; });
+  } else {
+    const payee = room.players.find(pl=>pl.id===payeeId);
+    if(payee) payee.cash += amount;
+  }
+}
+function payAmount(payer, amount, payeeId, logSuffix, next, extra){
+  const room = app.room;
+  if(amount<=0){ resolveDebtNext(next); return; }
+  if(payer.cash >= amount){
+    payer.cash -= amount;
+    creditAmount(amount, payeeId, payer.id, extra);
+    pushLog(payer.name+' '+logSuffix+'.');
+    resolveDebtNext(next);
+  } else {
+    room.debt = Object.assign({playerId:payer.id, amount, payee:payeeId, reason:logSuffix, next:next}, extra||{});
+    room.turnPhase='bankrupt_check';
+    commitRoom(); render();
+  }
+}
+function resolveDebtNext(next){
+  const room = app.room;
+  room.debt = null;
+  if(next==='jail_move'){
+    movePlayerAndResolve(currentPlayer(), room.dice[0]+room.dice[1]);
+  } else if(next==='jail_release'){
+    const p = currentPlayer();
+    p.inJail=false; p.jailTurns=0;
+    room.turnPhase='rolling';
+    commitRoom(); render();
+  } else {
+    finishLandingNoAction();
+  }
+}
+function payOffDebt(){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  const p = currentPlayer();
+  const debt = room.debt;
+  if(!debt || p.cash < debt.amount) return;
+  p.cash -= debt.amount;
+  creditAmount(debt.amount, debt.payee, p.id, debt);
+  pushLog(p.name+' '+debt.reason+'.');
+  resolveDebtNext(debt.next);
+}
+
+function drawCard(deckType, p){
+  const room = app.room;
+  const deckKey = deckType+'Deck', idxKey = deckType+'Index';
+  if(room[idxKey] >= room[deckKey].length){ room[deckKey] = shuffle(room[deckKey]); room[idxKey]=0; }
+  const cardIdx = room[deckKey][room[idxKey]];
+  room[idxKey]++;
+  const card = (deckType==='fortune'?FORTUNE_CARDS:TREASURY_CARDS)[cardIdx];
+  room.cardShown = {deck:deckType, text:card.text};
+  pushLog(p.name+' drew a '+(deckType==='fortune'?'Fortune':'Treasury')+' card: "'+card.text+'"');
+  room.turnPhase='card';
+  room.pendingAction = {effect: card.effect};
+  commitRoom(); render();
+}
+
+function applyCardEffect(){
+  const room = app.room;
+  const p = currentPlayer();
+  const eff = room.pendingAction.effect;
+  room.cardShown = null;
+  room.pendingAction = null;
+  switch(eff.type){
+    case 'COLLECT':
+      p.cash += eff.amount; pushLog(p.name+' collected '+fmtMoney(eff.amount)+'.'); finishLandingNoAction();
+      break;
+    case 'PAY':
+      payAmount(p, eff.amount, 'bank', 'paid '+fmtMoney(eff.amount), 'finish');
+      break;
+    case 'MOVE_TO':
+      movePlayerTo(p, eff.to);
+      break;
+    case 'MOVE_RELATIVE':
+      movePlayerRelative(p, eff.delta);
+      break;
+    case 'GOTO_JAIL':
+      sendToJail(p); room.doublesCount=0; finishLandingNoAction();
+      break;
+    case 'GET_OUT_OF_JAIL':
+      p.jailCards=(p.jailCards||0)+1; pushLog(p.name+' got a Get Out of Jail Free card.'); finishLandingNoAction();
+      break;
+    case 'PAY_EACH': {
+      const others = room.players.filter(pl=>!pl.bankrupt && pl.id!==p.id);
+      const total = eff.amount*others.length;
+      if(p.cash>=total){
+        others.forEach(pl=>{ p.cash-=eff.amount; pl.cash+=eff.amount; });
+        pushLog(p.name+' paid '+fmtMoney(eff.amount)+' to each player.');
+        finishLandingNoAction();
+      } else {
+        payAmount(p, total, 'multi', 'paid '+fmtMoney(eff.amount)+' to each player', 'finish', {payEachAmount:eff.amount});
+      }
+      break;
+    }
+    case 'COLLECT_FROM_EACH': {
+      const others = room.players.filter(pl=>!pl.bankrupt && pl.id!==p.id);
+      let total=0;
+      others.forEach(pl=>{ const pay=Math.min(pl.cash, eff.amount); pl.cash-=pay; total+=pay; });
+      p.cash += total;
+      pushLog(p.name+' collected '+fmtMoney(eff.amount)+' from each player.');
+      finishLandingNoAction();
+      break;
+    }
+    case 'REPAIRS': {
+      let total=0;
+      room.spaces.forEach(sp=>{ if(sp.type==='property' && sp.owner===p.id){ total += (sp.houses===5)?eff.perHotel:(sp.houses*eff.perHouse); } });
+      payAmount(p, total, 'bank', 'paid '+fmtMoney(total)+' for repairs', 'finish');
+      break;
+    }
+    case 'NEAREST_RAILROAD': {
+      const ids = room.spaces.filter(s=>s.type==='railroad').map(s=>s.id);
+      const next = nearestAhead(p.position, ids);
+      if(next <= p.position){ p.cash+=200; pushLog(p.name+' passed Go and collected $200.'); }
+      p.position = next;
+      const sp = room.spaces[next];
+      pushLog(p.name+' advanced to '+sp.name+'.');
+      if(sp.owner===null){ room.turnPhase='buy_decision'; room.pendingAction={spaceId:next}; commitRoom(); render(); }
+      else if(sp.owner===p.id || sp.mortgaged){ finishLandingNoAction(); }
+      else { const rent = calcRent(sp, room.players.find(pl=>pl.id===sp.owner)) * eff.mult; payAmount(p, rent, sp.owner, 'paid '+fmtMoney(rent)+' rent to '+ownerName(sp.owner), 'finish'); }
+      break;
+    }
+    case 'NEAREST_UTILITY': {
+      const ids = room.spaces.filter(s=>s.type==='utility').map(s=>s.id);
+      const next = nearestAhead(p.position, ids);
+      if(next <= p.position){ p.cash+=200; pushLog(p.name+' passed Go and collected $200.'); }
+      p.position = next;
+      const sp = room.spaces[next];
+      pushLog(p.name+' advanced to '+sp.name+'.');
+      if(sp.owner===null){ room.turnPhase='buy_decision'; room.pendingAction={spaceId:next}; commitRoom(); render(); }
+      else if(sp.owner===p.id || sp.mortgaged){ finishLandingNoAction(); }
+      else { const rent = (room.dice[0]+room.dice[1]) * eff.mult; payAmount(p, rent, sp.owner, 'paid '+fmtMoney(rent)+' rent to '+ownerName(sp.owner), 'finish'); }
+      break;
+    }
+    default:
+      finishLandingNoAction();
+  }
+}
+
+/* ============================================================================
+   JAIL ACTIONS
+   ============================================================================ */
+function payBail(){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  const p = currentPlayer();
+  if(!p.inJail || room.turnPhase!=='jail_decision') return;
+  payAmount(p, 50, 'bank', 'paid $50 bail', 'jail_release');
+}
+function useJailCard(){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  const p = currentPlayer();
+  if(!p.inJail || room.turnPhase!=='jail_decision' || !p.jailCards) return;
+  p.jailCards--; p.inJail=false; p.jailTurns=0;
+  pushLog(p.name+' used a Get Out of Jail Free card.');
+  room.turnPhase='rolling';
+  commitRoom(); render();
+}
+
+/* ============================================================================
+   END TURN, WIN CHECK, RESET
+   ============================================================================ */
+function endTurn(){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  if(room.turnPhase==='post_roll' && (room.doublesCount||0)>0 && !currentPlayer().inJail) return;
+  room.dice = null;
+  room.doublesCount = 0;
+  let next = room.currentPlayerIndex;
+  do{ next = (next+1)%room.players.length; } while(room.players[next].bankrupt && next!==room.currentPlayerIndex);
+  room.currentPlayerIndex = next;
+  const np = room.players[next];
+  room.turnPhase = np.inJail ? 'jail_decision' : 'rolling';
+  pushLog('— '+np.name+"'s turn —");
+  commitRoom(); render();
+}
+function checkWin(){
+  const room = app.room;
+  const alive = room.players.filter(p=>!p.bankrupt);
+  if(alive.length===1){
+    room.phase='ended'; room.winnerId=alive[0].id; room.turnPhase='game_over';
+    pushLog(alive[0].name+' wins the game!');
+    return true;
+  }
+  return false;
+}
+function declareBankruptcy(){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  if(room.turnPhase!=='bankrupt_check') return;
+  const p = currentPlayer();
+  const debt = room.debt;
+  room.spaces.forEach(sp=>{
+    if((sp.type==='property'||sp.type==='railroad'||sp.type==='utility') && sp.owner===p.id){
+      if(debt.payee!=='bank' && debt.payee!=='multi'){
+        sp.owner = debt.payee;
+        const creditor = room.players.find(pl=>pl.id===debt.payee);
+        if(creditor){ creditor.properties = creditor.properties||[]; creditor.properties.push(sp.id); }
+      } else {
+        sp.owner = null; sp.mortgaged = false; if(sp.type==='property') sp.houses = 0;
+      }
+    }
+  });
+  if(debt.payee!=='bank' && debt.payee!=='multi'){
+    const creditor = room.players.find(pl=>pl.id===debt.payee);
+    if(creditor) creditor.cash += p.cash;
+  }
+  p.cash = 0; p.properties = []; p.bankrupt = true;
+  pushLog(p.name+' went bankrupt!');
+  room.debt = null;
+  if(!checkWin()) endTurn();
+  else { commitRoom(); render(); }
+}
+function resetToLobby(){
+  if(!isHost()) return;
+  const room = app.room;
+  room.phase='lobby';
+  delete room.spaces;
+  room.players.forEach(p=>{
+    delete p.cash; delete p.position; delete p.properties; delete p.inJail;
+    delete p.jailTurns; delete p.jailCards; delete p.bankrupt;
+  });
+  delete room.currentPlayerIndex; delete room.dice; delete room.turnPhase;
+  delete room.doublesCount; delete room.freeParkingPot; delete room.fortuneDeck;
+  delete room.fortuneIndex; delete room.treasuryDeck; delete room.treasuryIndex;
+  delete room.log; delete room.pendingAction; delete room.trade; delete room.auction;
+  delete room.debt; delete room.cardShown; delete room.winnerId;
+  app.screen='lobby';
+  commitRoom(); render();
+}
+
+/* ============================================================================
+   TITLE DEED RENDERING
+   ============================================================================ */
+function renderTitleDeed(sp){
+  const groupColor = sp.group ? GROUP_COLORS[sp.group] : (GROUP_COLORS[sp.type]||'#888');
+  function row(a,b){ return `<tr><td>${a}</td><td class="r">${b}</td></tr>`; }
+  let rows = '';
+  if(sp.type==='property'){
+    rows += row('Rent', fmtMoney(sp.rent[0]));
+    rows += row('1 house', fmtMoney(sp.rent[1]));
+    rows += row('2 houses', fmtMoney(sp.rent[2]));
+    rows += row('3 houses', fmtMoney(sp.rent[3]));
+    rows += row('4 houses', fmtMoney(sp.rent[4]));
+    rows += row('Hotel', fmtMoney(sp.rent[5]));
+    rows += row('House cost', fmtMoney(sp.houseCost));
+    rows += row('Mortgage value', fmtMoney(sp.mortgage));
+  } else if(sp.type==='railroad'){
+    rows += row('Rent · 1 owned', fmtMoney(sp.rentTable[0]));
+    rows += row('Rent · 2 owned', fmtMoney(sp.rentTable[1]));
+    rows += row('Rent · 3 owned', fmtMoney(sp.rentTable[2]));
+    rows += row('Rent · 4 owned', fmtMoney(sp.rentTable[3]));
+    rows += row('Mortgage value', fmtMoney(sp.mortgage));
+  } else if(sp.type==='utility'){
+    rows += row('Rent · 1 owned', '4 × dice roll');
+    rows += row('Rent · both owned', '10 × dice roll');
+    rows += row('Mortgage value', fmtMoney(sp.mortgage));
+  }
+  return `<div class="title-deed">
+    <div class="td-header" style="background:${groupColor}">${esc(sp.name)}</div>
+    ${(sp.type==='property'||sp.type==='railroad'||sp.type==='utility') ? `<p style="margin:0 0 8px; font-weight:700;">Price: ${fmtMoney(sp.price)}</p>`:''}
+    <table>${rows}</table>
+  </div>`;
+}
+
+/* ============================================================================
+   BUY / DECLINE
+   ============================================================================ */
+function renderBuyDecision(){
+  const room = app.room;
+  const sp = room.spaces[room.pendingAction.spaceId];
+  const p = currentPlayer();
+  return `
+    ${renderTitleDeed(sp)}
+    <div class="btn-row">
+      <button class="btn btn-accent" data-act="buyprop" style="flex:1;" ${p.cash<sp.price?'disabled':''}>Buy for ${fmtMoney(sp.price)}</button>
+      <button class="btn" data-act="declineprop" style="flex:1;">Decline</button>
+    </div>`;
+}
+function buyProperty(){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  if(room.turnPhase!=='buy_decision') return;
+  const sp = room.spaces[room.pendingAction.spaceId];
+  const p = currentPlayer();
+  if(p.cash < sp.price) return;
+  p.cash -= sp.price;
+  sp.owner = p.id; p.properties = p.properties||[]; p.properties.push(sp.id);
+  pushLog(p.name+' bought '+sp.name+' for '+fmtMoney(sp.price)+'.');
+  room.pendingAction = null;
+  finishLandingNoAction();
+}
+function declineProperty(){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  if(room.turnPhase!=='buy_decision') return;
+  const sp = room.spaces[room.pendingAction.spaceId];
+  if(room.settings.auctionOnDecline){
+    startAuction(sp.id);
+  } else {
+    pushLog(currentPlayer().name+' declined to buy '+sp.name+'.');
+    room.pendingAction = null;
+    finishLandingNoAction();
+  }
+}
+
+/* ============================================================================
+   AUCTIONS
+   ============================================================================ */
+function startAuction(spaceId){
+  const room = app.room;
+  const order = room.players.filter(p=>!p.bankrupt).map(p=>p.id);
+  const active = {}; order.forEach(id=>active[id]=true);
+  room.auction = {spaceId, order, idx:0, highBid:0, highBidder:null, active};
+  room.turnPhase = 'auction';
+  room.pendingAction = null;
+  pushLog('Auction started for '+room.spaces[spaceId].name+'.');
+  advanceAuctionToActive();
+  commitRoom(); render();
+}
+function advanceAuctionToActive(){
+  const room = app.room;
+  const a = room.auction;
+  if(!a) return;
+  const activeIds = a.order.filter(id=>a.active[id]);
+  if(activeIds.length===0){
+    pushLog('No one bid — '+room.spaces[a.spaceId].name+' stays unowned.');
+    endAuction(null);
+    return;
+  }
+  if(activeIds.length===1 && a.highBidder!==null){
+    endAuction(activeIds[0]);
+    return;
+  }
+  let tries=0;
+  while(!a.active[a.order[a.idx]] && tries<a.order.length){ a.idx=(a.idx+1)%a.order.length; tries++; }
+}
+function endAuction(winnerId){
+  const room = app.room;
+  const a = room.auction;
+  const sp = room.spaces[a.spaceId];
+  if(winnerId){
+    const winner = room.players.find(p=>p.id===winnerId);
+    winner.cash -= a.highBid;
+    sp.owner = winner.id; winner.properties = winner.properties||[]; winner.properties.push(sp.id);
+    pushLog(winner.name+' won the auction for '+sp.name+' at '+fmtMoney(a.highBid)+'.');
+  }
+  room.auction = null;
+  finishLandingNoAction();
+}
+function auctionBid(amount){
+  const room = app.room;
+  const a = room.auction;
+  if(!a) return;
+  const pid = a.order[a.idx];
+  if(pid!==app.me.id) return;
+  const player = room.players.find(p=>p.id===pid);
+  if(amount<=a.highBid || amount>player.cash) return;
+  a.highBid = amount; a.highBidder = pid;
+  pushLog(player.name+' bid '+fmtMoney(amount)+'.');
+  a.idx = (a.idx+1)%a.order.length;
+  advanceAuctionToActive();
+  if(room.auction){ commitRoom(); render(); }
+}
+function auctionPass(){
+  const room = app.room;
+  const a = room.auction;
+  if(!a) return;
+  const pid = a.order[a.idx];
+  if(pid!==app.me.id) return;
+  const player = room.players.find(p=>p.id===pid);
+  a.active[pid] = false;
+  pushLog(player.name+' passed.');
+  a.idx = (a.idx+1)%a.order.length;
+  advanceAuctionToActive();
+  if(room.auction){ commitRoom(); render(); }
+}
+
+/* ============================================================================
+   PROPERTY MANAGEMENT (build, sell, mortgage)
+   ============================================================================ */
+function evenBuildOk(sp, action){
+  const room = app.room;
+  if(!room.settings.evenBuild) return true;
+  const groupSpaces = room.spaces.filter(s=>s.group===sp.group);
+  const houses = groupSpaces.map(s=>s.houses||0);
+  const min = Math.min.apply(null, houses), max = Math.max.apply(null, houses);
+  if(action==='build') return (sp.houses||0)===min;
+  if(action==='sell') return (sp.houses||0)===max;
+  return true;
+}
+function buildHouse(spaceId){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  const p = currentPlayer();
+  const sp = room.spaces[spaceId];
+  if(sp.owner!==p.id || sp.type!=='property' || sp.mortgaged || sp.houses>=5) return;
+  const groupSpaces = room.spaces.filter(s=>s.group===sp.group);
+  if(!groupSpaces.every(s=>s.owner===p.id)) return;
+  if(!evenBuildOk(sp,'build')) return;
+  if(p.cash < sp.houseCost) return;
+  p.cash -= sp.houseCost;
+  sp.houses++;
+  pushLog(p.name+' built '+(sp.houses===5?'a hotel':'a house')+' on '+sp.name+'.');
+  commitRoom(); render();
+}
+function sellHouse(spaceId){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  const p = currentPlayer();
+  const sp = room.spaces[spaceId];
+  if(sp.owner!==p.id || sp.type!=='property' || (sp.houses||0)<=0) return;
+  if(!evenBuildOk(sp,'sell')) return;
+  sp.houses--;
+  p.cash += Math.floor(sp.houseCost/2);
+  pushLog(p.name+' sold a house on '+sp.name+'.');
+  commitRoom(); render();
+}
+function mortgageProperty(spaceId){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  const p = currentPlayer();
+  const sp = room.spaces[spaceId];
+  if(sp.owner!==p.id || sp.mortgaged) return;
+  if(sp.type==='property' && (sp.houses||0)>0) return;
+  sp.mortgaged = true;
+  p.cash += sp.mortgage;
+  pushLog(p.name+' mortgaged '+sp.name+' for '+fmtMoney(sp.mortgage)+'.');
+  commitRoom(); render();
+}
+function unmortgageProperty(spaceId){
+  if(!isMyTurn()) return;
+  const room = app.room;
+  const p = currentPlayer();
+  const sp = room.spaces[spaceId];
+  if(sp.owner!==p.id || !sp.mortgaged) return;
+  const cost = Math.round(sp.mortgage*1.1);
+  if(p.cash < cost) return;
+  p.cash -= cost;
+  sp.mortgaged = false;
+  pushLog(p.name+' paid off the mortgage on '+sp.name+' for '+fmtMoney(cost)+'.');
+  commitRoom(); render();
+}
+
+/* ============================================================================
+   PROPERTIES MODAL & BANKRUPTCY PANEL
+   ============================================================================ */
+function renderPropertyManageRow(sp, p, fullSet){
+  let buildControls = '';
+  if(sp.type==='property'){
+    const canBuild = fullSet && !sp.mortgaged && (sp.houses||0)<5 && p.cash>=sp.houseCost && evenBuildOk(sp,'build');
+    const canSell = (sp.houses||0)>0 && evenBuildOk(sp,'sell');
+    buildControls = `
+      <button class="btn btn-sm" data-act="buildhouse" data-id="${sp.id}" ${canBuild?'':'disabled'}>+House (${fmtMoney(sp.houseCost)})</button>
+      <button class="btn btn-sm" data-act="sellhouse" data-id="${sp.id}" ${canSell?'':'disabled'}>-House (+${fmtMoney(Math.floor(sp.houseCost/2))})</button>`;
+  }
+  const hasHouses = sp.type==='property' && (sp.houses||0)>0;
+  const unmortCost = Math.round(sp.mortgage*1.1);
+  const mortgageBtn = sp.mortgaged
+    ? `<button class="btn btn-sm" data-act="unmortgage" data-id="${sp.id}" ${p.cash<unmortCost?'disabled':''}>Unmortgage (${fmtMoney(unmortCost)})</button>`
+    : `<button class="btn btn-sm" data-act="mortgage" data-id="${sp.id}" ${hasHouses?'disabled':''}>Mortgage (+${fmtMoney(sp.mortgage)})</button>`;
+  const houseLabel = sp.type==='property' ? (sp.houses===5?' · Hotel' : (sp.houses>0?(' · '+sp.houses+' house'+(sp.houses>1?'s':'')):'')) : '';
+  return `<div class="flex-between" style="padding:5px 0; border-bottom:1px solid #e7ddc8; font-size:13px; flex-wrap:wrap; gap:6px;">
+    <div>${esc(sp.name)}${sp.mortgaged?' <span class="badge badge-bad">Mortgaged</span>':''}${houseLabel}</div>
+    <div class="btn-row">${buildControls}${mortgageBtn}</div>
+  </div>`;
+}
+function renderPropertiesModal(){
+  const room = app.room;
+  const p = currentPlayer();
+  const ownedProps = room.spaces.filter(sp=>sp.owner===p.id);
+  const propGroups = {};
+  ownedProps.filter(sp=>sp.type==='property').forEach(sp=>{ (propGroups[sp.group]=propGroups[sp.group]||[]).push(sp); });
+  const railsAndUtils = ownedProps.filter(sp=>sp.type==='railroad'||sp.type==='utility');
+
+  let html = `<div class="modal">
+    <p class="modal-sub">Manage properties</p>
+    <h3 style="margin-bottom:12px;">${esc(p.name)} · ${fmtMoney(p.cash)}</h3>`;
+
+  if(ownedProps.length===0) html += `<p class="muted">No properties owned yet.</p>`;
+
+  Object.keys(propGroups).forEach(group=>{
+    const spaces = propGroups[group].slice().sort((a,b)=>a.id-b.id);
+    const fullSet = room.spaces.filter(s=>s.group===group).every(s=>s.owner===p.id);
+    html += `<div style="margin-bottom:8px;">
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:.1em; font-weight:700; margin:8px 0 2px; color:${GROUP_COLORS[group]}">${GROUP_LABELS[group]}${fullSet?' · Full set':''}</div>
+      ${spaces.map(sp=>renderPropertyManageRow(sp,p,fullSet)).join('')}
+    </div>`;
+  });
+  if(railsAndUtils.length){
+    html += `<div style="margin-bottom:8px;">
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:.1em; font-weight:700; margin:8px 0 2px;">Transit &amp; Utilities</div>
+      ${railsAndUtils.map(sp=>renderPropertyManageRow(sp,p,false)).join('')}
+    </div>`;
+  }
+
+  if(room.turnPhase==='bankrupt_check'){
+    const debt = room.debt;
+    const owedTo = (debt.payee!=='bank'&&debt.payee!=='multi') ? ' to '+esc(ownerName(debt.payee)) : '';
+    html += `<hr class="sep">
+    <p style="font-weight:700;">You owe ${fmtMoney(debt.amount)}${owedTo}.</p>
+    <div class="btn-row">
+      ${p.cash>=debt.amount ? `<button class="btn btn-accent" data-act="paydebt">Pay ${fmtMoney(debt.amount)} now</button>` : ''}
+      <button class="btn btn-danger" data-act="declarebankrupt">Declare bankruptcy</button>
+    </div>`;
+  }
+
+  html += `<div style="margin-top:14px; text-align:right;"><button class="btn" data-act="closemodal">Close</button></div></div>`;
+  return html;
+}
+function renderBankruptCheck(){
+  const room = app.room;
+  const p = currentPlayer();
+  const debt = room.debt;
+  const owedTo = (debt.payee!=='bank'&&debt.payee!=='multi') ? ' to '+esc(ownerName(debt.payee)) : '';
+  return `
+    <p style="margin-top:0;">You owe <b>${fmtMoney(debt.amount)}</b>${owedTo}.</p>
+    <p class="muted" style="font-size:12.5px;">${esc(debt.reason)}</p>
+    <button class="btn" data-act="openprops">Manage properties</button>
+    ${p.cash>=debt.amount ? `<button class="btn btn-accent" data-act="paydebt">Pay ${fmtMoney(debt.amount)} now</button>` : ''}
+    <button class="btn btn-danger" data-act="declarebankrupt">Declare bankruptcy</button>
+  `;
+}
+
+/* ============================================================================
+   TRADING
+   ============================================================================ */
+function describeTradeSide(cash, propIds, jail){
+  const room = app.room;
+  const parts = [];
+  if(cash>0) parts.push(fmtMoney(cash));
+  (propIds||[]).forEach(id=>parts.push(room.spaces[id].name));
+  if(jail>0) parts.push(jail+' Get Out of Jail Free card'+(jail>1?'s':''));
+  return parts.length ? parts.join(', ') : 'nothing';
+}
+function renderActiveTrade(trade){
+  const room = app.room;
+  const from = room.players.find(p=>p.id===trade.from);
+  const to = room.players.find(p=>p.id===trade.to);
+  let html = `<div style="font-size:13px;">
+    <b>Trade offer</b><br>
+    <b>${esc(from.name)}</b> offers: ${describeTradeSide(trade.offerCash, trade.offerProps, trade.offerJailCards)}<br>
+    for, from <b>${esc(to.name)}</b>: ${describeTradeSide(trade.requestCash, trade.requestProps, trade.requestJailCards)}
+  </div><div class="btn-row" style="margin-top:8px;">`;
+  if(app.me.id===trade.to){
+    html += `<button class="btn btn-accent" data-act="accepttrade">Accept</button>
+             <button class="btn btn-danger" data-act="declinetrade">Decline</button>`;
+  } else if(app.me.id===trade.from){
+    html += `<button class="btn" data-act="canceltrade">Cancel offer</button>`;
+  } else {
+    html += `<span class="muted" style="font-size:12px;">Waiting for ${esc(to.name)} to respond…</span>`;
+  }
+  html += `</div>`;
+  return html;
+}
+function renderTradeSection(){
+  const room = app.room;
+  if(room.trade) return '<hr class="sep">'+renderActiveTrade(room.trade);
+  const others = room.players.filter(p=>!p.bankrupt && p.id!==app.me.id);
+  const me = myPlayer();
+  if(!me || me.bankrupt || others.length===0) return '';
+  return '<hr class="sep"><button class="btn" data-act="opentrade">Propose a trade</button>';
+}
+function renderTradeModal(){
+  const room = app.room;
+  const me = myPlayer();
+  const draft = app.ui.tradeDraft;
+  const others = room.players.filter(p=>!p.bankrupt && p.id!==app.me.id);
+  const target = room.players.find(p=>p.id===draft.toId) || others[0];
+  draft.toId = target.id;
+  const myProps = room.spaces.filter(sp=>sp.owner===app.me.id && !(sp.type==='property' && sp.houses>0));
+  const theirProps = room.spaces.filter(sp=>sp.owner===target.id && !(sp.type==='property' && sp.houses>0));
+  return `<div class="modal">
+    <p class="modal-sub">Propose a trade</p>
+    <h3 style="margin-bottom:10px;">Trade with</h3>
+    <select data-act="tradeto" style="width:100%; margin-bottom:12px; background:var(--paper); border:1px solid #cfc6b4; border-radius:8px; padding:8px; font-size:14px;">
+      ${others.map(p=>`<option value="${p.id}" ${p.id===target.id?'selected':''}>${esc(p.name)}</option>`).join('')}
+    </select>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+      <div>
+        <b style="font-size:12.5px;">You give</b>
+        <label class="field" style="margin:8px 0;">Cash<input type="number" min="0" max="${me.cash}" step="10" value="${draft.offerCash}" data-act="tradecash" data-side="offer"></label>
+        ${myProps.length ? myProps.map(sp=>`<div class="checkrow"><input type="checkbox" ${draft.offerProps.includes(sp.id)?'checked':''} data-act="tradeprop" data-side="offer" data-id="${sp.id}"> ${esc(sp.name)}</div>`).join('') : '<p class="muted" style="font-size:12px;">No properties</p>'}
+        ${(me.jailCards>0) ? `<label class="field" style="margin-top:8px;">Jail-free cards<input type="number" min="0" max="${me.jailCards}" value="${draft.offerJail}" data-act="tradejail" data-side="offer"></label>` : ''}
+      </div>
+      <div>
+        <b style="font-size:12.5px;">You get</b>
+        <label class="field" style="margin:8px 0;">Cash<input type="number" min="0" max="${target.cash}" step="10" value="${draft.requestCash}" data-act="tradecash" data-side="request"></label>
+        ${theirProps.length ? theirProps.map(sp=>`<div class="checkrow"><input type="checkbox" ${draft.requestProps.includes(sp.id)?'checked':''} data-act="tradeprop" data-side="request" data-id="${sp.id}"> ${esc(sp.name)}</div>`).join('') : '<p class="muted" style="font-size:12px;">No properties</p>'}
+        ${(target.jailCards>0) ? `<label class="field" style="margin-top:8px;">Jail-free cards<input type="number" min="0" max="${target.jailCards}" value="${draft.requestJail}" data-act="tradejail" data-side="request"></label>` : ''}
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn btn-accent" data-act="sendtrade">Send offer</button>
+      <button class="btn" data-act="closemodal">Cancel</button>
+    </div>
+  </div>`;
+}
+function proposeTrade(){
+  const room = app.room;
+  const me = myPlayer();
+  const draft = app.ui.tradeDraft;
+  const target = room.players.find(p=>p.id===draft.toId);
+  if(!target || room.trade) return;
+  if(draft.offerCash>me.cash || draft.requestCash>target.cash) return;
+  room.trade = {
+    from: app.me.id, to: target.id,
+    offerCash: draft.offerCash||0, offerProps: draft.offerProps.slice(), offerJailCards: draft.offerJail||0,
+    requestCash: draft.requestCash||0, requestProps: draft.requestProps.slice(), requestJailCards: draft.requestJail||0,
+    status:'pending'
+  };
+  pushLog(me.name+' proposed a trade with '+target.name+'.');
+  app.ui.modal = null;
+  commitRoom(); render();
+}
+function acceptTrade(){
+  const room = app.room;
+  const trade = room.trade;
+  if(!trade || app.me.id!==trade.to) return;
+  const from = room.players.find(p=>p.id===trade.from);
+  const to = room.players.find(p=>p.id===trade.to);
+  from.cash += trade.requestCash - trade.offerCash;
+  to.cash += trade.offerCash - trade.requestCash;
+  trade.offerProps.forEach(id=>{
+    room.spaces[id].owner = to.id;
+    from.properties = (from.properties||[]).filter(x=>x!==id);
+    to.properties = to.properties||[]; to.properties.push(id);
+  });
+  trade.requestProps.forEach(id=>{
+    room.spaces[id].owner = from.id;
+    to.properties = (to.properties||[]).filter(x=>x!==id);
+    from.properties = from.properties||[]; from.properties.push(id);
+  });
+  from.jailCards = (from.jailCards||0) - trade.offerJailCards + trade.requestJailCards;
+  to.jailCards = (to.jailCards||0) - trade.requestJailCards + trade.offerJailCards;
+  pushLog(to.name+' accepted a trade with '+from.name+'.');
+  room.trade = null;
+  commitRoom(); render();
+}
+function declineTrade(){
+  const room = app.room;
+  const trade = room.trade;
+  if(!trade || app.me.id!==trade.to) return;
+  pushLog(room.players.find(p=>p.id===trade.to).name+' declined the trade offer.');
+  room.trade = null;
+  commitRoom(); render();
+}
+function cancelTrade(){
+  const room = app.room;
+  const trade = room.trade;
+  if(!trade || app.me.id!==trade.from) return;
+  pushLog(room.players.find(p=>p.id===trade.from).name+' withdrew their trade offer.');
+  room.trade = null;
+  commitRoom(); render();
+}
+
+</script>
+</body>
+</html>
