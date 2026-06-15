@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev",
+    "check": "node --check api/*.js"
+  },
+  "devDependencies": {
+    "vercel": "latest"
+  }
+}
