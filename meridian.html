@@ -11,30 +11,47 @@
 /* ============================================================
    THEME TOKENS
    ============================================================ */
-:root, [data-theme="felt"]{
+:root, [data-theme="luxury"]{
+  --bg:#120d09; --board:#3a2a18; --panel:#1d1510; --panel2:#2b2118;
+  --paper:#fff5df; --ink:#2a1b0f; --text:#fff4df; --muted:#d5b982;
+  --accent:#f2c15b; --accent-ink:#231608; --accent2:#9f2f2f;
+  --line:rgba(255,231,176,0.2); --good:#88c77b; --shadow:rgba(0,0,0,.62);
+  --v-glow:rgba(242,193,91,.34); --v-edge:#6b4a24; --v-board-hi:rgba(255,255,255,.13);
+}
+[data-theme="felt"]{
   --bg:#0d2419; --board:#1f4537; --panel:#16331f; --panel2:#1c3d29;
   --paper:#f4eedd; --ink:#2b2420; --text:#eef3ea; --muted:#a9bfb0;
   --accent:#cda349; --accent-ink:#2b2018; --accent2:#b2433c;
   --line:rgba(244,238,221,0.16); --good:#6fae6e; --shadow:rgba(0,0,0,.45);
+  --v-glow:rgba(205,163,73,.22); --v-edge:#0b1d15; --v-board-hi:rgba(255,255,255,.08);
 }
 [data-theme="midnight"]{
   --bg:#0b1020; --board:#161d36; --panel:#10162c; --panel2:#151c38;
   --paper:#eef0fb; --ink:#1c2240; --text:#eef0fb; --muted:#9aa3c7;
   --accent:#e8c14a; --accent-ink:#241c08; --accent2:#d65d6b;
   --line:rgba(232,225,255,0.14); --good:#7fd1a0; --shadow:rgba(0,0,0,.55);
+  --v-glow:rgba(232,193,74,.2); --v-edge:#070a16; --v-board-hi:rgba(255,255,255,.09);
 }
 [data-theme="sunset"]{
   --bg:#2c1812; --board:#7a3b2e; --panel:#3a1f17; --panel2:#48261b;
   --paper:#fbf0e1; --ink:#3a261c; --text:#fdece0; --muted:#e0b9a8;
   --accent:#f3b54a; --accent-ink:#2c1808; --accent2:#3f7d6e;
   --line:rgba(253,236,224,0.18); --good:#8fd0b0; --shadow:rgba(0,0,0,.45);
+  --v-glow:rgba(243,181,74,.22); --v-edge:#1a0e0a; --v-board-hi:rgba(255,255,255,.1);
 }
 [data-theme="mint"]{
   --bg:#13201d; --board:#1f3530; --panel:#0f1a18; --panel2:#16241f;
   --paper:#f1f7ef; --ink:#1f2e29; --text:#eaf4ee; --muted:#9fc2b4;
   --accent:#7fd9b6; --accent-ink:#0c2620; --accent2:#e8866f;
   --line:rgba(234,244,238,0.14); --good:#7fd9b6; --shadow:rgba(0,0,0,.5);
+  --v-glow:rgba(127,217,182,.18); --v-edge:#07110f; --v-board-hi:rgba(255,255,255,.08);
 }
+
+
+[data-designer="architect"] .board{--v-designer-sheen:linear-gradient(135deg, rgba(255,255,255,.18), transparent 26%, rgba(255,255,255,.06) 52%, transparent 78%);}
+[data-designer="cinematic"] .board{--v-designer-sheen:radial-gradient(circle at 50% 50%, rgba(255,255,255,.1), transparent 48%);}
+[data-designer="minimal"] .board{--v-designer-sheen:none;}
+[data-designer="minimal"] .cell, [data-designer="minimal"] .die{box-shadow:none;}
 
 /* ============================================================
    RESET & BASE
@@ -43,7 +60,10 @@
 html,body{margin:0;padding:0;}
 body{
   font-family:'Inter',system-ui,sans-serif;
-  background:var(--bg); color:var(--text);
+  background:
+    radial-gradient(circle at 50% -10%, var(--v-glow, rgba(205,163,73,.2)), transparent 34%),
+    linear-gradient(135deg, rgba(255,255,255,.04), transparent 28%),
+    var(--bg); color:var(--text);
   min-height:100vh; line-height:1.45;
   -webkit-font-smoothing:antialiased;
 }
@@ -80,8 +100,8 @@ a{color:var(--accent);}
    GENERIC UI ELEMENTS
    ============================================================ */
 .card{
-  background:var(--panel); border:1px solid var(--line); border-radius:14px;
-  padding:18px; box-shadow:0 6px 24px var(--shadow);
+  background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 42%), var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:18px; box-shadow:0 12px 34px var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
 }
 .btn{
   border-radius:10px; border:1px solid var(--line); background:var(--panel2);
@@ -137,8 +157,9 @@ h2.section-title{
 .token{
   width:30px; height:30px; border-radius:50%; flex-shrink:0;
   display:flex; align-items:center; justify-content:center;
-  font-weight:800; font-size:12px; color:#fff; border:2px solid rgba(255,255,255,.35);
+  font-weight:800; font-size:12px; color:#fff; border:2px solid rgba(255,255,255,.42);
   font-family:'JetBrains Mono',monospace;
+  box-shadow:0 6px 12px rgba(0,0,0,.34), inset -4px -5px 8px rgba(0,0,0,.18), inset 2px 2px 4px rgba(255,255,255,.35);
 }
 .player-chip .pname{font-weight:700; font-size:14px;}
 .player-chip .ptag{font-size:11px; color:var(--muted); margin-left:auto; text-transform:uppercase; letter-spacing:.08em;}
@@ -171,13 +192,22 @@ h2.section-title{
   display:grid;
   grid-template-columns: 1.35fr repeat(9,1fr) 1.35fr;
   grid-template-rows: 1.35fr repeat(9,1fr) 1.35fr;
-  background:var(--board); border-radius:10px; border:6px solid var(--panel2);
-  box-shadow:0 10px 36px var(--shadow); position:relative; padding:3px; gap:2px;
+  background:
+    var(--v-designer-sheen, linear-gradient(135deg, rgba(255,255,255,.12), transparent 32%, rgba(0,0,0,.08) 68%)),
+    radial-gradient(circle at 50% 42%, var(--v-board-hi), transparent 38%),
+    var(--board);
+  border-radius:18px; border:8px solid var(--panel2);
+  box-shadow:0 28px 70px var(--shadow), 0 10px 0 var(--v-edge), inset 0 0 0 1px rgba(255,255,255,.12), inset 0 0 36px rgba(0,0,0,.18);
+  position:relative; padding:7px; gap:3px;
+  transform:perspective(1300px) rotateX(1.3deg); transform-origin:center bottom;
 }
 .cell{
-  position:relative; background:var(--paper); color:var(--ink); border-radius:3px;
+  position:relative; background:linear-gradient(145deg, rgba(255,255,255,.55), transparent 30%), var(--paper); color:var(--ink); border-radius:5px;
   display:flex; flex-direction:column; overflow:hidden; min-width:0; min-height:0;
+  box-shadow:inset 0 0 0 1px rgba(42,27,15,.12), 0 1px 0 rgba(255,255,255,.18);
+  transition:transform .16s ease, filter .16s ease;
 }
+.cell:hover{transform:translateY(-1px); filter:saturate(1.04);}
 .cell .band{height:14%; min-height:6px; width:100%;}
 .cell .label{
   flex:1; display:flex; align-items:center; justify-content:center; text-align:center;
@@ -195,15 +225,16 @@ h2.section-title{
 .cell.corner .label{font-size:clamp(7px,1.4vw,13px);}
 .cell.owned{box-shadow:inset 0 0 0 3px var(--owner-color, transparent);}
 .cell.mortgaged{filter:grayscale(.6) brightness(.85);}
-.cell .houses{position:absolute; top:2px; left:2px; right:2px; display:flex; gap:1px; justify-content:center; z-index:2;}
-.cell.side-left .houses, .cell.side-right .houses{top:auto; left:2px; right:2px; bottom:2px; flex-direction:row;}
-.house-icon{width:7px; height:7px; background:#3aa563; border:1px solid #1f5c33; border-radius:1px;}
-.hotel-icon{width:11px; height:9px; background:#c0392b; border:1px solid #6e1c12; border-radius:1px;}
-.cell .tokens{position:absolute; bottom:2px; left:2px; right:2px; display:flex; flex-wrap:wrap; gap:1px; justify-content:center; z-index:3;}
-.cell.side-left .tokens, .cell.side-right .tokens{bottom:auto; top:50%; left:2px; right:2px;}
+.cell .houses{position:absolute; top:3px; left:3px; right:3px; display:flex; gap:2px; justify-content:center; align-items:flex-end; z-index:2; pointer-events:none;}
+.cell.side-left .houses, .cell.side-right .houses{top:auto; left:3px; right:3px; bottom:3px; flex-direction:row;}
+.house-icon{width:8px; height:8px; background:linear-gradient(145deg,#7be28f,#23834b); border:1px solid #176035; border-radius:2px 2px 1px 1px; box-shadow:0 2px 3px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.45);}
+.hotel-icon{width:15px; height:11px; background:linear-gradient(145deg,#f06b5d,#9e251f); border:1px solid #68170f; border-radius:2px; box-shadow:0 2px 4px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.38);}
+.cell .tokens{position:absolute; bottom:3px; left:3px; right:3px; display:flex; flex-wrap:wrap; gap:2px; justify-content:center; z-index:3; pointer-events:none;}
+.cell.side-left .tokens, .cell.side-right .tokens{bottom:auto; top:50%; left:3px; right:3px;}
 .mini-token{
-  width:11px; height:11px; border-radius:50%; border:1px solid rgba(255,255,255,.6);
+  width:14px; height:14px; border-radius:50%; border:1px solid rgba(255,255,255,.72);
   font-size:6px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800;
+  box-shadow:0 4px 7px rgba(0,0,0,.38), inset -2px -3px 5px rgba(0,0,0,.22), inset 1px 1px 3px rgba(255,255,255,.45);
 }
 .center-area{
   grid-row:2/11; grid-column:2/11; display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -212,10 +243,11 @@ h2.section-title{
 .center-area .display{font-size:clamp(20px,4vw,40px); color:var(--accent); margin:0; letter-spacing:.08em;}
 .dice-row{display:flex; gap:10px;}
 .die{
-  width:clamp(34px,7vw,52px); height:clamp(34px,7vw,52px); background:var(--paper); color:var(--ink);
-  border-radius:8px; display:flex; align-items:center; justify-content:center;
-  font-size:clamp(16px,3.4vw,26px); font-weight:800; font-family:'JetBrains Mono',monospace;
-  box-shadow:0 4px 10px var(--shadow);
+  width:clamp(38px,7vw,58px); height:clamp(38px,7vw,58px); background:radial-gradient(circle at 32% 26%, #fff, var(--paper) 58%, #d8c5a2); color:var(--ink);
+  border-radius:12px; display:flex; align-items:center; justify-content:center;
+  font-size:clamp(17px,3.4vw,27px); font-weight:800; font-family:'JetBrains Mono',monospace;
+  border:1px solid rgba(42,27,15,.18);
+  box-shadow:0 10px 18px rgba(0,0,0,.34), inset -5px -7px 12px rgba(0,0,0,.11), inset 2px 2px 4px rgba(255,255,255,.78);
 }
 .die.rolling{animation:roll .5s ease;}
 @keyframes roll{
@@ -224,7 +256,14 @@ h2.section-title{
   60%{transform:rotate(280deg) scale(.94);}
   100%{transform:rotate(360deg) scale(1);}
 }
-@media (prefers-reduced-motion: reduce){ .die.rolling{animation:none;} }
+@media (prefers-reduced-motion: reduce){ .die.rolling{animation:none;} .cell{transition:none;} }
+@media(max-width:560px){
+  #app{padding:8px;}
+  .board{border-width:5px; padding:4px; gap:2px; border-radius:12px; transform:none; box-shadow:0 14px 36px var(--shadow), 0 5px 0 var(--v-edge);}
+  .mini-token{width:11px; height:11px; font-size:5.5px;}
+  .house-icon{width:6px; height:6px;} .hotel-icon{width:11px; height:8px;}
+  .center-area{gap:6px; padding:6px;}
+}
 .turn-banner{font-size:14px; font-weight:700;}
 .turn-banner .pname-inline{color:var(--accent);}
 
@@ -283,7 +322,7 @@ h2.section-title{
 hr.sep{border:none; border-top:1px solid var(--line); margin:14px 0;}
 </style>
 </head>
-<body data-theme="felt">
+<body data-theme="luxury" data-designer="architect">
 <div id="app"></div>
 
 <script>
@@ -384,10 +423,17 @@ const TREASURY_CARDS = [
 ];
 
 const THEMES = [
+  {id:'luxury',   label:'Luxury Estate', swatches:['#120d09','#f2c15b','#9f2f2f','#fff5df']},
   {id:'felt',     label:'Felt Green',    swatches:['#1f4537','#cda349','#b2433c','#f4eedd']},
   {id:'midnight', label:'Midnight',      swatches:['#161d36','#e8c14a','#d65d6b','#eef0fb']},
   {id:'sunset',   label:'Sunset',        swatches:['#7a3b2e','#f3b54a','#3f7d6e','#fbf0e1']},
   {id:'mint',     label:'Mint Studio',   swatches:['#1f3530','#7fd9b6','#e8866f','#f1f7ef']},
+];
+
+const DESIGNER_STYLES = [
+  {id:'architect', label:'Architectural Depth'},
+  {id:'cinematic', label:'Cinematic Glow'},
+  {id:'minimal', label:'Gallery Minimal'}
 ];
 
 const PLAYER_COLORS = ['#cda349','#b2433c','#5d8fc4','#6fae6e','#9b6fc4','#e08a4f'];
@@ -399,7 +445,8 @@ function defaultSettings(){
     doubleRentFullSet:true,
     evenBuild:true,
     auctionOnDecline:true,
-    theme:'felt',
+    theme:'luxury',
+    designer:'architect',
   };
 }
 
@@ -483,7 +530,8 @@ function render(){
   if(app.screen==='home') el.innerHTML = renderHome();
   else if(app.screen==='lobby') el.innerHTML = renderLobby();
   else if(app.screen==='game') el.innerHTML = renderGame();
-  document.body.dataset.theme = (app.room && app.room.settings) ? app.room.settings.theme : 'felt';
+  document.body.dataset.theme = (app.room && app.room.settings) ? (app.room.settings.theme || 'luxury') : 'luxury';
+  document.body.dataset.designer = (app.room && app.room.settings) ? (app.room.settings.designer || 'architect') : 'architect';
   renderModal();
   wireEvents();
 }
@@ -599,6 +647,7 @@ function renderSetupPanel(){
 function renderSetupReadOnly(){
   const s = app.room.settings;
   const themeLabel = (THEMES.find(t=>t.id===s.theme)||{}).label || s.theme;
+  const designerLabel = (DESIGNER_STYLES.find(d=>d.id===(s.designer||'architect'))||{}).label || (s.designer||'architect');
   return `
   <h2 class="section-title">Game setup</h2>
   <p class="muted" style="font-size:13px;">The host is configuring the board, house rules, and theme. Here's the current setup:</p>
@@ -609,6 +658,7 @@ function renderSetupReadOnly(){
     <li>Even house-building rule: <b>${s.evenBuild?'On':'Off'}</b></li>
     <li>Auction unbought properties: <b>${s.auctionOnDecline?'On':'Off'}</b></li>
     <li>Theme: <b>${themeLabel}</b></li>
+    <li>AI Designer style: <b>${designerLabel}</b></li>
   </ul>`;
 }
 
@@ -669,14 +719,23 @@ function renderBoardTab(){
 }
 
 function renderThemeTab(){
-  const cur = app.room.settings.theme;
+  const cur = app.room.settings.theme || 'luxury';
+  const designer = app.room.settings.designer || 'architect';
   return `
-  <p class="muted" style="font-size:12.5px; margin-top:0;">Pick a look for the table. Everyone sees the same theme.</p>
+  <p class="muted" style="font-size:12.5px; margin-top:0;">Pick a look for the table. Everyone sees the same theme and AI Designer direction.</p>
   <div class="theme-grid">
     ${THEMES.map(t=>`
       <div class="theme-opt ${cur===t.id?'active':''}" data-act="theme" data-id="${t.id}">
         <div class="theme-swatches">${t.swatches.map(c=>`<span class="swatch" style="background:${c}"></span>`).join('')}</div>
         ${t.label}
+      </div>`).join('')}
+  </div>
+  <hr class="sep">
+  <h2 class="section-title">AI Designer Style</h2>
+  <div class="theme-grid">
+    ${DESIGNER_STYLES.map(d=>`
+      <div class="theme-opt ${designer===d.id?'active':''}" data-act="designer" data-id="${d.id}">
+        ${d.label}
       </div>`).join('')}
   </div>`;
 }
@@ -945,6 +1004,12 @@ function handleAction(ds, el, e){
     case 'theme': {
       app.room.settings.theme = ds.id;
       document.body.dataset.theme = ds.id;
+      commitRoom(); render();
+      break;
+    }
+    case 'designer': {
+      app.room.settings.designer = ds.id;
+      document.body.dataset.designer = ds.id;
       commitRoom(); render();
       break;
     }
