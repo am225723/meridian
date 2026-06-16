@@ -1,67 +1,60 @@
-# Meridian Luxury Estate Asset Pack Manual QA
+# Meridian Multiplayer QA
 
-Date: 2026-06-15
+Date: 2026-06-16
 
 ## Environment note
 
-Automated real-browser QA could not be completed in this container because no browser executable was available (`chromium`, `chromium-browser`, `google-chrome`, and `firefox` were not found), and no browser automation package (`playwright`, `puppeteer`, or `selenium-webdriver`) was installed. Per the task constraint, no new packages were installed.
+Final QA was run from the repository container against the static app and API-route code. A full deployed-device browser pass could not be completed from this environment because:
 
-Static/render-harness checks were performed where possible:
+- No browser executable was available (`chromium`, `chromium-browser`, `google-chrome`, and `firefox` were not found).
+- Browser automation packages (`playwright`, `puppeteer`, and `selenium-webdriver`) were not installed, and `npx playwright --version` was blocked by the npm registry with `403 Forbidden`.
+- Vercel production logs could not be queried because the CLI had no existing credentials and the login request to `vercel.com` failed with DNS `EAI_AGAIN`.
+- Upstash/Vercel Redis environment variables were not present in the container, so live Redis key creation and TTL inspection could not be performed here.
 
-- `node --check` on the extracted application script from `meridian.html`.
-- Local HTTP smoke check using `python3 -m http.server` and fetching `http://127.0.0.1:4173/meridian.html`.
-- Luxury Estate asset-file inventory check under `assets/luxury-estate/`.
+No gameplay changes were made during this QA pass.
+
+## Automated checks completed
+
+- `npm run check` passed and validated the API route JavaScript with `node --check api/*.js`.
+- Extracted the inline application script from `public/index.html` and validated it with `node --check /tmp/meridian-index-script.js`.
+- Mocked the Redis REST API and verified `api/room-set.js` sends `['SET', 'room:ABCDE', '{"rev":1}', 'EX', '86400']`, confirming `room:CODE` key format and the default 24-hour TTL command.
+- Mocked the Redis REST API and verified `api/room-get.js` sends `['GET', 'room:ABCDE']` and returns the stored value.
+- Confirmed the expected Luxury Estate asset inventory exists: board/tabletop textures, card assets, six dice faces, ten group icons, six player tokens, and house/hotel building assets.
+- Served `public/` locally with `python3 -m http.server 4175` and fetched `/` plus `/assets/luxury-estate/tokens/crown.svg` successfully.
 
 ## Checklist status legend
 
-- **Static covered**: Covered by static inspection or non-browser harness checks in this environment.
-- **Requires visual browser confirmation**: Must be confirmed in an actual browser because it depends on rendered UI, image painting, animation, multi-tab synchronization, or console state.
+- **Passed static/API**: Verified by code inspection, syntax checks, mocked API contract checks, or local HTTP fetches.
+- **Blocked in container**: Requires live browser/device automation, Vercel credentials/log access, or live Upstash credentials unavailable in this container.
 
 ## QA checklist
 
 | # | Item | Status | Notes |
 |---|------|--------|-------|
-| 1 | Home screen loads with no visible broken images. | Requires visual browser confirmation | Static script syntax and HTTP serving passed; visual image state needs a browser. |
-| 2 | Create room works. | Requires visual browser confirmation | Room creation depends on runtime storage/browser interaction. |
-| 3 | Join room works in a second tab/window. | Requires visual browser confirmation | Requires two browser tabs/windows and shared room storage. |
-| 4 | Host can select Luxury Estate. | Static covered + requires visual browser confirmation | Luxury Estate is the default theme and is present in the theme catalog; browser confirmation should verify click behavior. |
-| 5 | Host can select each Designer Style: Architectural Depth, Cinematic Glow, Gallery Minimal. | Static covered + requires visual browser confirmation | All three designer styles are present in the selector; browser confirmation should verify selection state and styling. |
-| 6 | Non-host sees the selected theme and designer style. | Static covered + requires visual browser confirmation | Read-only setup renders theme and designer labels; browser confirmation should verify live sync in a second tab/window. |
-| 7 | Start game works. | Requires visual browser confirmation | Requires two players in a browser room. |
-| 8 | Board texture and tabletop texture display visually. | Static covered + requires visual browser confirmation | `board.svg` and `tabletop.svg` exist under `assets/luxury-estate/textures/`; painting must be visually confirmed. |
-| 9 | Player tokens display in lobby player chip, sidebar player list, and board space mini-token. | Static covered + requires visual browser confirmation | Luxury token SVGs exist and rendering paths are wired for lobby, sidebar, and board tokens; visual confirmation still required. |
-| 10 | Dice faces display SVGs when not rolling. | Static covered + requires visual browser confirmation | All six Luxury Estate dice SVGs exist; rendered dice face display must be verified in browser. |
-| 11 | Dice hide/animate correctly while rolling. | Requires visual browser confirmation | Animation/timing requires browser observation. |
-| 12 | Property group icons display on grouped properties. | Static covered + requires visual browser confirmation | Luxury group SVGs exist for all property groups plus railroad and utility; board rendering uses group icons for color properties. |
-| 13 | Houses and hotels display SVG assets after building. | Static covered + requires visual browser confirmation | Luxury `villa.svg` and `manor.svg` exist and building rendering uses them; gameplay build flow must be visually confirmed. |
-| 14 | Missing assets do not show broken image icons. | Static covered + requires visual browser confirmation | Image tags use an `onerror` fallback that removes failed images; visual browser confirmation should verify no broken-image icons appear. |
-| 15 | Title deed modals still show correct rent, mortgage, ownership, and metadata. | Static covered + requires visual browser confirmation | Title deed rendering includes rent tables, mortgage values, ownership text, and theme metadata; values should be checked in browser modals. |
-| 16 | Buying, declining, auctioning, rent, cards, jail, trades, and property management still work. | Requires visual browser confirmation | Full gameplay regression requires interactive browser testing. |
-| 17 | Mobile viewport remains usable at approximately 390px width. | Requires visual browser confirmation | Requires browser viewport/device emulation. |
-| 18 | Console has no errors. | Requires visual browser confirmation | Requires browser developer console or automation console capture. |
+| 1 | Create room works. | Passed static/API; blocked for live browser | Frontend saves rooms as `room:` plus uppercase code; API accepts `room:` keys and writes to Redis with `SET ... EX 86400`. Live click flow needs a browser. |
+| 2 | Join room works from a second device. | Passed static inspection; blocked for live browser | Join loads the same `room:CODE`, appends a player during lobby, saves, and starts polling. Cross-device confirmation needs a deployed browser session. |
+| 3 | Starting game updates all players. | Passed static inspection; blocked for live browser | Starting the game increments `rev`, saves room state, and polling compares `remote.rev` to update other clients. Live confirmation needs two browser clients. |
+| 4 | Refresh/rejoin works during active game. | Passed static inspection; blocked for live browser | Room links and last-session restore include room code, player ID, and player name; active games restore to the game screen when the player still exists. Live refresh confirmation needs a browser. |
+| 5 | Copy room link restores the correct player. | Passed static inspection; blocked for live browser | Copy links include `#ROOM:PLAYER_ID:PLAYER_NAME`, and initialization restores that exact player ID. Clipboard/link behavior needs browser confirmation. |
+| 6 | Tokens appear in lobby, sidebar, and board. | Passed static inspection/assets; blocked for visual browser | Token rendering uses the active asset pack for player chips and board mini-tokens, and all Luxury Estate token SVGs are present. Visual rendering needs a browser. |
+| 7 | Tokens move after rolling. | Passed static inspection; blocked for visual browser | Rolling updates player position and board mini-tokens have the `tokenMove` animation. Visual movement needs a browser. |
+| 8 | Dice, cards, rent, buying, auctions, jail, trades, and property management still work. | Passed static inspection; blocked for interactive browser | The relevant action handlers and state transitions are present. Full gameplay regression needs interactive browser testing. |
+| 9 | Board labels do not shift during play. | Blocked in container | Requires visual comparison while playing in a browser. |
+| 10 | No broken images. | Passed static/assets and HTTP fetch; blocked for visual browser | Luxury Estate assets exist and image tags remove themselves on load error. Visual confirmation needs a browser. |
+| 11 | No console errors. | Blocked in container | Requires a browser console or browser automation. Static script syntax passed. |
+| 12 | No 503s in Vercel logs. | Blocked in container | Vercel CLI log query could not authenticate or reach `vercel.com` from this container. |
+| 13 | Upstash room keys are created as `room:CODE` and expire after 24 hours. | Passed API contract; blocked for live Upstash inspection | Mocked API confirmed `SET room:ABCDE ... EX 86400`; live Upstash key/TTL inspection needs production credentials. |
 
-## Luxury Estate asset inventory covered statically
+## Recommended remaining live pass
 
-Confirmed expected Luxury Estate SVG files are present for:
+Run this against the deployed Vercel URL with two real browsers/devices and authenticated Vercel/Upstash access:
 
-- Board/tabletop textures.
-- Deed, Fortune, and Treasury card backs/frames.
-- Dice faces 1–6.
-- Property group icons for brown, lightblue, pink, orange, red, yellow, green, darkblue, railroad, and utility.
-- Player tokens: crown, compass, key, fox, airship, and lighthouse.
-- Buildings: villa and manor.
-
-## Manual browser procedure to complete remaining visual QA
-
-1. Serve the repository locally, for example: `python3 -m http.server 4173`.
-2. Open `http://127.0.0.1:4173/meridian.html` in a real browser.
-3. Open DevTools Console and keep it visible while testing.
-4. On the home screen, enter a host name and create a room.
-5. Open a second tab/window to the same URL, enter a different player name, switch to **Join game**, enter the room code, and join.
-6. As host, open **Theme** or **AI Designer**, choose **Luxury Estate**, then select each designer style: **Architectural Depth**, **Cinematic Glow**, and **Gallery Minimal**.
-7. In the non-host tab, verify the selected Luxury Estate theme and current designer style are reflected in the read-only setup panel.
-8. Start the game from the host tab.
-9. Verify Luxury Estate board/tabletop textures, tokens, dice SVGs, property group icons, houses/hotels after building, and title deed modal values.
-10. Exercise buying, declining, auction, rent, card, jail, trade, and property-management flows.
-11. Resize the browser to approximately 390px width and verify the UI remains usable.
-12. Confirm there are no console errors and no visible broken-image icons.
+1. Open Browser A, create a room, and confirm a `room:CODE` key appears in Upstash with TTL near `86400` seconds.
+2. Open Browser B or a second device, join with the same code, and confirm both lobbies show both players and their tokens.
+3. Copy Browser A's room link, open it in a fresh Browser A profile/tab, and confirm it restores the host player rather than creating a new player.
+4. Start the game and confirm Browser B automatically enters the active game after polling.
+5. Refresh both browsers during the active game and confirm each restores the correct player and current game state.
+6. Exercise rolling, buying, declining/auctioning, paying rent, card draws, jail, trades, building/selling houses, mortgaging/unmortgaging, and bankruptcy/debt flows.
+7. Watch board labels and token positions during movement to confirm labels remain stable and tokens visibly move.
+8. Keep DevTools Console and Network open to confirm no console errors, no broken image requests, and no unexpected failed `/api/room-get` or `/api/room-set` responses.
+9. Query Vercel logs for status `503` over the QA window and confirm no results.
