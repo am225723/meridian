@@ -1,9 +1,9 @@
-const DEFAULT_ROOM_TTL_SECONDS = Number(process.env.ROOM_TTL_SECONDS || 60 * 60 * 24);
+const DEFAULT_ROOM_TTL_SECONDS = 60 * 60 * 24;
 
 function normalizeRoomKey(key) {
   if (typeof key !== 'string') return '';
-  const normalized = key.trim().toUpperCase();
-  return /^ROOM:[A-Z0-9]{4,12}$/.test(normalized) ? normalized : '';
+  const trimmed = key.trim();
+  return trimmed.startsWith('room:') ? trimmed : '';
 }
 
 function json(res, status, body) {
@@ -13,15 +13,16 @@ function json(res, status, body) {
 }
 
 function getRedisConfig() {
-  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-  return { url, token };
+  return {
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  };
 }
 
 async function redisCommand(command) {
   const { url, token } = getRedisConfig();
   if (!url || !token) {
-    const err = new Error('KV_REST_API_URL and KV_REST_API_TOKEN are required.');
+    const err = new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required.');
     err.statusCode = 503;
     throw err;
   }
