@@ -1,5 +1,8 @@
 const DEFAULT_ROOM_TTL_SECONDS = 60 * 60 * 24;
 
+const REST_URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+const REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+
 function normalizeRoomKey(key) {
   if (typeof key !== 'string') return '';
   const trimmed = key.trim();
@@ -14,17 +17,25 @@ function json(res, status, body) {
 
 function getRedisConfig() {
   return {
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    url: REST_URL,
+    token: REST_TOKEN,
   };
+}
+
+function missingRedisConfigError() {
+  const missing = [];
+  if (!REST_URL) missing.push('UPSTASH_REDIS_REST_URL or KV_REST_API_URL');
+  if (!REST_TOKEN) missing.push('UPSTASH_REDIS_REST_TOKEN or KV_REST_API_TOKEN');
+
+  const err = new Error(`Missing Redis configuration: ${missing.join(', ')}.`);
+  err.statusCode = 503;
+  return err;
 }
 
 async function redisCommand(command) {
   const { url, token } = getRedisConfig();
   if (!url || !token) {
-    const err = new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required.');
-    err.statusCode = 503;
-    throw err;
+    throw missingRedisConfigError();
   }
 
   const response = await fetch(`${url.replace(/\/$/, '')}`, {
