@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const value = await redisCommand(['GET', key]);
-    return json(res, 200, value == null ? null : { value });
+    return json(res, 200, { value: value == null ? null : value });
   } catch (error) {
     return json(res, error.statusCode || 500, { error: error.message });
   }
